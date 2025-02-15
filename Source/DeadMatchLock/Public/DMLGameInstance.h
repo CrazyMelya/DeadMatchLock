@@ -22,4 +22,7 @@ class DEADMATCHLOCK_API UDMLGameInstance : public UGameInstance
 public:
 	UFUNCTION(BlueprintCallable)
 	ULobbyManager* GetLobbyManager() const;
+
+	UFUNCTION(BlueprintCallable)
+	void CreateDedicatedSession();
 };
