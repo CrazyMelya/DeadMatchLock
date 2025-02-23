@@ -16,19 +16,6 @@ void UDMLGameInstance::Init()
 	{
 		LobbyManager = NewObject<ULobbyManager>(this);
 	}
-
-	if (IsDedicatedServerInstance())
-	{
-		if (FParse::Param(FCommandLine::Get(), TEXT("masterserver")))
-		{
-			UE_LOG(LogTemp, Log, TEXT("Запущен Master Server. Сессия НЕ создаётся."));
-		}
-		else
-		{
-			UE_LOG(LogTemp, Log, TEXT("Запущен игровой сервер. Создаём сессию..."));
-			CreateDedicatedSession();
-		}
-	}
 }
 
 ULobbyManager* UDMLGameInstance::GetLobbyManager() const

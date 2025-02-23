@@ -29,14 +29,5 @@ void ADMLMainMenuGameMode::GetSeamlessTravelActorList(bool bToTransition, TArray
 	// }
 }
 
-void ADMLMainMenuGameMode::BeginPlay()
-{
-	Super::BeginPlay();
 
-	if (!IsRunningDedicatedServer())
-	{
-		UE_LOG(LogTemp, Log, TEXT("Клиент, подключаетмя к мастер серверу..."));
-		GetWorld()->GetFirstPlayerController()->ClientTravel("127.0.0.1:1", TRAVEL_Absolute, true);
-	}
-}
 

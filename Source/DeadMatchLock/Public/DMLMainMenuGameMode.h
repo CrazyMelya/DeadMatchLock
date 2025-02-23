@@ -18,6 +18,4 @@ class DEADMATCHLOCK_API ADMLMainMenuGameMode : public AGameModeBase
 	ADMLMainMenuGameMode(const FObjectInitializer& ObjectInitializer);
 
 	virtual void GetSeamlessTravelActorList(bool bToTransition, TArray<AActor*>& ActorList) override;
-
-	virtual void BeginPlay() override;
 };
