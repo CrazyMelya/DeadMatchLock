@@ -25,4 +25,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CreateDedicatedSession();
+
+	UFUNCTION(BlueprintCallable)
+	void CreateSession(const FName SessionName);
+
+	UFUNCTION()
+	void OnCreateSession(FName SessionName, bool Success);
 };

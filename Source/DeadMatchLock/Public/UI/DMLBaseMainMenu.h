@@ -17,4 +17,7 @@ class DEADMATCHLOCK_API UDMLBaseMainMenu : public UUserWidget
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLobbyUpdated(const FLobbyData& Lobby);
+
+	UFUNCTION(BlueprintCallable)
+	void GetLobbyMembers(const FName LobbyName);
 };
