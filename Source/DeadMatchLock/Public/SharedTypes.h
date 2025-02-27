@@ -64,3 +64,15 @@ struct FCharactersData
 	FAbilityInitData Ability4;
 };
 
+USTRUCT(BlueprintType)
+struct FLobbyPlayerData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	APlayerController* PlayerController = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bReady = false;
+};
+
