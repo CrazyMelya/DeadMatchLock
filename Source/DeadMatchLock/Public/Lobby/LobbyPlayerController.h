@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DMLPlayerState.h"
 #include "LobbyPlayerPlatform.h"
 #include "GameFramework/PlayerController.h"
 #include "UI/BaseLobbyUI.h"
@@ -15,9 +16,6 @@ UCLASS()
 class DEADMATCHLOCK_API ALobbyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
-	UPROPERTY()
-	ALobbyPlayerPlatform* PlayerPlatform;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -25,9 +23,27 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="UI")
 	TSubclassOf<UBaseLobbyUI> LobbyUIClass;
+
+	virtual void InitPlayerState() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 public:
 	void SetPlayerPlatform(ALobbyPlayerPlatform* InPlayerPlatform);
+	void RemovePlayerPlatform();
 
-	virtual void OnPossess(APawn* InPawn) override;
+	// UFUNCTION(Server, Reliable)
+	void LeaveLobby();
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION(Server, Reliable)
+	void ToggleReadyState();
+
+private:
+	UPROPERTY(Replicated)
+	ALobbyPlayerPlatform* PlayerPlatform;
+
+	UPROPERTY(Replicated)
+	ADMLPlayerState* DMLPlayerState;
 };

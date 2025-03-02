@@ -3,16 +3,45 @@
 
 #include "Lobby/LobbyPlayerController.h"
 
+#include "Net/UnrealNetwork.h"
+
+
+void ALobbyPlayerController::InitPlayerState()
+{
+	Super::InitPlayerState();
+
+	DMLPlayerState = Cast<ADMLPlayerState>(PlayerState);
+}
+
+void ALobbyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ALobbyPlayerController, DMLPlayerState);
+	DOREPLIFETIME(ALobbyPlayerController, PlayerPlatform);
+}
 
 void ALobbyPlayerController::SetPlayerPlatform(ALobbyPlayerPlatform* InPlayerPlatform)
 {
 	PlayerPlatform = InPlayerPlatform;
+	PlayerPlatform->SetPlayer(DMLPlayerState);
 }
 
-void ALobbyPlayerController::OnPossess(APawn* InPawn)
+void ALobbyPlayerController::RemovePlayerPlatform()
 {
-	Super::OnPossess(InPawn);
+	PlayerPlatform->RemovePlayer();
+	PlayerPlatform = nullptr;
+}
 
+void ALobbyPlayerController::LeaveLobby()
+{
+	ClientTravel(TEXT(""), TRAVEL_Absolute);
+}
+
+void ALobbyPlayerController::BeginPlay()
+{
+	SetInputMode(FInputModeUIOnly());
+	
 	if (IsLocalController() && !LobbyUI)
 	{
 		LobbyUI = CreateWidget<UBaseLobbyUI>(this, LobbyUIClass, FName("LobbyUI"));
@@ -21,5 +50,16 @@ void ALobbyPlayerController::OnPossess(APawn* InPawn)
 			LobbyUI->SetPlayerController(this);
 			LobbyUI->AddToViewport();
 		}
+	}
+
+	Super::BeginPlay();
+}
+
+void ALobbyPlayerController::ToggleReadyState_Implementation()
+{
+	if (DMLPlayerState && PlayerPlatform)
+	{
+		DMLPlayerState->ToggleReadyState();
+		PlayerPlatform->RefreshInfo();
 	}
 }

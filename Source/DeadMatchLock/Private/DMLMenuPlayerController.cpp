@@ -75,7 +75,6 @@ void ADMLMenuPlayerController::Login_Implementation(const FString& Nickname)
 		FUniqueNetIdStringRef FakeNetId = FUniqueNetIdString::Create(Nickname, FName(TEXT("NULL")));
 		DMLPlayerState->SetUniqueId(*FakeNetId);
 		DMLPlayerState->SetPlayerName(Nickname);
-		DMLPlayerState->IsLogedIn = true;
 		OnLoginCompleted(true);
 	}
 	else

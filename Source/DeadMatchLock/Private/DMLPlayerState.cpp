@@ -2,7 +2,9 @@
 
 
 #include "DMLPlayerState.h"
+#include "Net/UnrealNetwork.h"
 
-ADMLPlayerState::ADMLPlayerState(const FObjectInitializer& ObjectInitializer)
+void ADMLPlayerState::ToggleReadyState_Implementation()
 {
+	bReady = !bReady;
 }

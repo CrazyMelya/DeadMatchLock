@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "UI/LobbyPlayerInfo.h"
 #include "LobbyPlayerPlatform.generated.h"
 
 class UWidgetComponent;
@@ -18,7 +19,9 @@ public:
 	ALobbyPlayerPlatform();
 
 	UFUNCTION()
-	void Possess(ALobbyPlayerController* InPlayerController);
+	void SetPlayer(ADMLPlayerState* InPlayerState);
+
+	void RemovePlayer();
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,13 +37,27 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* PlatformMesh;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
 	USkeletalMeshComponent* CharacterMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UWidgetComponent* LobbyPlayerInfo;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
+	UWidgetComponent* WC_LobbyPlayerInfo;
+
+	UFUNCTION()
+	bool GetPossessed();
+
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void RefreshInfo();
 
 private:
+	UPROPERTY(ReplicatedUsing=OnRep_PlayerState)
+	ADMLPlayerState* PlayerState;
+
+	UFUNCTION()
+	void OnRep_PlayerState();
+
 	UPROPERTY()
-	ALobbyPlayerController* PlayerController;
+	ULobbyPlayerInfo* LobbyPlayerInfo;
 };

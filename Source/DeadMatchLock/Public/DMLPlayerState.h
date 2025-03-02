@@ -15,9 +15,9 @@ class DEADMATCHLOCK_API ADMLPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lobby State")
+	bool bReady = false;
 
-	ADMLPlayerState(const FObjectInitializer& ObjectInitializer);
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DMLPlayerState")
-	bool IsLogedIn = false;
+	UFUNCTION(NetMulticast, Reliable)
+	void ToggleReadyState();
 };

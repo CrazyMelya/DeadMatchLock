@@ -3,9 +3,9 @@
 
 #include "Lobby/LobbyPlayerPlatform.h"
 
-#include "Builders/CylinderBuilder.h"
-#include "Components/Button.h"
 #include "Components/WidgetComponent.h"
+#include "Lobby/LobbyPlayerController.h"
+#include "Net/UnrealNetwork.h"
 
 
 // Sets default values
@@ -33,40 +33,81 @@ ALobbyPlayerPlatform::ALobbyPlayerPlatform()
 	// Create and init base character mesh
 	CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh"));
 	CharacterMesh->SetupAttachment(RootComponent);
-	CharacterMesh->SetHiddenInGame(true); // Show mesh when player connected
+	CharacterMesh->SetHiddenInGame(true, true); // Show mesh when player connect
     CharacterMesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
     CharacterMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 30.0f));
 	CharacterMesh->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 
     // Create and init widget components
-	LobbyPlayerInfo = CreateDefaultSubobject<UWidgetComponent>(TEXT("LobbyPlayerInfo"));
-	LobbyPlayerInfo->SetupAttachment(RootComponent);
-	LobbyPlayerInfo->SetupAttachment(CharacterMesh);
-	LobbyPlayerInfo->SetVisibility(false);
-	LobbyPlayerInfo->SetWidgetSpace(EWidgetSpace::Screen);
-	LobbyPlayerInfo->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
+	WC_LobbyPlayerInfo = CreateDefaultSubobject<UWidgetComponent>(TEXT("LobbyPlayerInfo"));
+	WC_LobbyPlayerInfo->SetupAttachment(RootComponent);
+	WC_LobbyPlayerInfo->SetupAttachment(CharacterMesh);
+	WC_LobbyPlayerInfo->SetHiddenInGame(true);
+	WC_LobbyPlayerInfo->SetWidgetSpace(EWidgetSpace::Screen);
+	WC_LobbyPlayerInfo->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
+
+	SetReplicates(true);
 }
 
-void ALobbyPlayerPlatform::Possess(ALobbyPlayerController* InPlayerController)
+void ALobbyPlayerPlatform::SetPlayer(ADMLPlayerState* InPlayerState)
 {
-	if (PlayerController)
-	{
-		PlayerController = InPlayerController;
-		
-	}
+	PlayerState = InPlayerState;
+	OnRep_PlayerState();
+}
+
+void ALobbyPlayerPlatform::RemovePlayer()
+{
+	PlayerState = nullptr;
+	OnRep_PlayerState();
 }
 
 // Called when the game starts or when spawned
 void ALobbyPlayerPlatform::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	LobbyPlayerInfo = Cast<ULobbyPlayerInfo>(WC_LobbyPlayerInfo->GetWidget());
+	if (PlayerState)
+	{
+		LobbyPlayerInfo->SetPlayerState(PlayerState);
+		CharacterMesh->SetHiddenInGame(false, true);
+	}
 }
 
 // Called every frame
 void ALobbyPlayerPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+bool ALobbyPlayerPlatform::GetPossessed()
+{
+	return PlayerState != nullptr;
+}
+
+void ALobbyPlayerPlatform::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ALobbyPlayerPlatform, PlayerState);
+}
+
+void ALobbyPlayerPlatform::OnRep_PlayerState()
+{
+	if (LobbyPlayerInfo && PlayerState)
+	{
+		LobbyPlayerInfo->SetPlayerState(PlayerState);
+		CharacterMesh->SetHiddenInGame(false, true);
+	}
+	else
+	{
+		CharacterMesh->SetHiddenInGame(true, true);
+	}
+}
+
+void ALobbyPlayerPlatform::RefreshInfo_Implementation()
+{
+	if (LobbyPlayerInfo)
+		LobbyPlayerInfo->RefreshInfo();
 }
 

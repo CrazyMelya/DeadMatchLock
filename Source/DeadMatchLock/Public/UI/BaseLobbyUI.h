@@ -16,11 +16,18 @@ UCLASS()
 class DEADMATCHLOCK_API UBaseLobbyUI : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	UPROPERTY()
-	ALobbyPlayerController* PlayerController;
 
 public:
 	UFUNCTION()
 	void SetPlayerController(ALobbyPlayerController* InPlayerController);
+
+private:
+	UPROPERTY()
+	ALobbyPlayerController* PlayerController;
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleReadyState();
+
+	UFUNCTION(BlueprintCallable)
+	void LeaveLobby();
 };
