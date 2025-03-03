@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DMLPlayerState.h"
+#include "LobbyGameMode.h"
 #include "LobbyPlayerPlatform.h"
 #include "GameFramework/PlayerController.h"
 #include "UI/BaseLobbyUI.h"
@@ -40,10 +41,19 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ToggleReadyState();
 
+	UFUNCTION()
+	void SetGameMode(ALobbyGameMode* InGameMode);
+
 private:
 	UPROPERTY(Replicated)
 	ALobbyPlayerPlatform* PlayerPlatform;
 
 	UPROPERTY(Replicated)
 	ADMLPlayerState* DMLPlayerState;
+
+	UPROPERTY()
+	ALobbyGameMode* GameMode;
+
+	UFUNCTION()
+	void OnSessionDestroyed(FName SessionName, bool bSuccess);
 };

@@ -20,6 +20,7 @@ void ALobbyGameMode::OnPostLogin(AController* NewPlayer)
 	if (auto LobbyPlayerController = Cast<ALobbyPlayerController>(NewPlayer))
 	{
 		Players.Add(LobbyPlayerController);
+		LobbyPlayerController->SetGameMode(this);
 		if (bPlatformsSet)
 			SetupNewPlayer(LobbyPlayerController);
 	}

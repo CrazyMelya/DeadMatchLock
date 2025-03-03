@@ -3,6 +3,8 @@
 
 #include "Lobby/LobbyPlayerController.h"
 
+#include "Online.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -35,7 +37,28 @@ void ALobbyPlayerController::RemovePlayerPlatform()
 
 void ALobbyPlayerController::LeaveLobby()
 {
-	ClientTravel(TEXT(""), TRAVEL_Absolute);
+	if (HasAuthority())
+	{
+		
+	}
+	if (auto Sessions = Online::GetSessionInterface())
+	{
+		Sessions->DestroySession(NAME_GameSession);
+		Sessions->OnDestroySessionCompleteDelegates.AddUObject(this, &ALobbyPlayerController::OnSessionDestroyed);
+	}
+}
+
+void ALobbyPlayerController::OnSessionDestroyed(FName SessionName, bool bSuccess)
+{
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/MainMenu"));
+	// if (HasAuthority()) // Если это хост (Listen Server)
+	// {
+	// 	GetWorld()->ServerTravel(TEXT("/Game/Maps/MainMenu")); // Закрываем сервер
+	// }
+	// else // Если это клиент
+	// {
+	// 	ClientTravel(TEXT("/Game/Maps/MainMenu"), TRAVEL_Absolute);
+	// }
 }
 
 void ALobbyPlayerController::BeginPlay()
@@ -53,6 +76,11 @@ void ALobbyPlayerController::BeginPlay()
 	}
 
 	Super::BeginPlay();
+}
+
+void ALobbyPlayerController::SetGameMode(ALobbyGameMode* InGameMode)
+{
+	GameMode = InGameMode;
 }
 
 void ALobbyPlayerController::ToggleReadyState_Implementation()

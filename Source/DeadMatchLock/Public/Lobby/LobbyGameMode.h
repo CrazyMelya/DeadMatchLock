@@ -16,22 +16,19 @@ class DEADMATCHLOCK_API ALobbyGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	ALobbyGameMode(const FObjectInitializer& ObjectInitializer);
-	
+
 protected:
 	virtual void OnPostLogin(AController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 	virtual void BeginPlay() override;
-	
-private:
-	UPROPERTY()
-	TArray<ALobbyPlayerPlatform*> Platforms;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
+	TArray<ALobbyPlayerPlatform*> Platforms;
+	
+	UPROPERTY(BlueprintReadOnly)
 	TArray<ALobbyPlayerController*> Players;
 
-	UPROPERTY()
-	bool bPlatformsSet = false;
-
+private:
 	UFUNCTION()
 	void SetupFirstPlayers();
 
@@ -40,4 +37,7 @@ private:
 
 	UFUNCTION()
 	void SetupNewPlayer(ALobbyPlayerController* Player);
+
+	UPROPERTY()
+	bool bPlatformsSet = false;
 };

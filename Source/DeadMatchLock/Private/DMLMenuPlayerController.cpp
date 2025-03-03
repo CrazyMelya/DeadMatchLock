@@ -18,7 +18,7 @@ void ADMLMenuPlayerController::BeginPlay()
 {
 	SetInputMode(FInputModeUIOnly());
 
-	if (GetNetMode() == NM_Client || GetNetMode() == NM_Standalone)
+	if (GetNetMode() != NM_DedicatedServer)
 	{
 		MainMenuWidget = CreateWidget<UDMLBaseMainMenu>(this, MainMenuClass, FName("MainMenu"));
 		if (MainMenuWidget)
