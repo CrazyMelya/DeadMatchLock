@@ -47,16 +47,16 @@ public:
 	UFUNCTION()
 	void SetGameMode(ALobbyGameMode* InGameMode);
 
+	UFUNCTION()
+	void SetAllReady(bool bAllReady);
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	ADMLPlayerState* DMLPlayerState;
+
 private:
 	UPROPERTY(Replicated)
 	ALobbyPlayerPlatform* PlayerPlatform;
-
-	UPROPERTY(Replicated)
-	ADMLPlayerState* DMLPlayerState;
-
+	
 	UPROPERTY()
 	ALobbyGameMode* GameMode;
-
-	UFUNCTION()
-	void OnSessionDestroyed(FName SessionName, bool bSuccess);
 };

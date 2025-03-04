@@ -17,11 +17,24 @@ void ALobbyGameMode::CloseLobby()
 {
 	for (auto Player : Players)
 	{
-		if (!Player->IsLocalController())
+		if (Player != LobbyLeader)
 		{
 			Player->LeaveLobby();
 		}
 	}
+}
+
+void ALobbyGameMode::CheckAllReady_Implementation()
+{
+	for (auto Player : Players)
+	{
+		if (!Player->DMLPlayerState->bReady)
+		{
+			LobbyLeader->SetAllReady(false);
+			return;
+		}
+	}
+	LobbyLeader->SetAllReady(true);
 }
 
 void ALobbyGameMode::OnPostLogin(AController* NewPlayer)
@@ -30,10 +43,15 @@ void ALobbyGameMode::OnPostLogin(AController* NewPlayer)
 
 	if (auto LobbyPlayerController = Cast<ALobbyPlayerController>(NewPlayer))
 	{
+		if (!LobbyLeader)
+			LobbyLeader = LobbyPlayerController;
+		else
+			LobbyLeader->SetAllReady(false);
 		Players.Add(LobbyPlayerController);
 		LobbyPlayerController->SetGameMode(this);
 		if (bPlatformsSet)
 			SetupNewPlayer(LobbyPlayerController);
+		
 	}
 }
 
@@ -45,6 +63,7 @@ void ALobbyGameMode::Logout(AController* Exiting)
 	{
 		LobbyPlayerController->RemovePlayerPlatform();
 		Players.Remove(LobbyPlayerController);
+		CheckAllReady();
 	}
 }
 

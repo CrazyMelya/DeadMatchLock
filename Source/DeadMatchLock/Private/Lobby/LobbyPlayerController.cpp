@@ -46,38 +46,12 @@ void ALobbyPlayerController::LeaveLobby_Implementation()
 	{
 		BP_LeaveLobby();
 	}
-	// if (auto Sessions = Online::GetSessionInterface())
-	// {
-	// 	// Sessions
-	// 	Sessions->OnDestroySessionCompleteDelegates.AddUObject(this, &ALobbyPlayerController::OnSessionDestroyed);
-	// 	Sessions->DestroySession(NAME_GameSession);
-	// }
-}
-
-void ALobbyPlayerController::OnSessionDestroyed(FName SessionName, bool bSuccess)
-{
-	if (bSuccess)
-	{
-		if (auto Sessions = Online::GetSessionInterface())
-		{
-			Sessions->OnDestroySessionCompleteDelegates.Clear();
-			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/MainMenu"));
-		}
-	}
-
-	// if (HasAuthority()) // Если это хост (Listen Server)
-	// {
-	// 	GetWorld()->ServerTravel(TEXT("/Game/Maps/MainMenu")); // Закрываем сервер
-	// }
-	// else // Если это клиент
-	// {
-	// 	ClientTravel(TEXT("/Game/Maps/MainMenu"), TRAVEL_Absolute);
-	// }
 }
 
 void ALobbyPlayerController::BeginPlay()
 {
 	SetInputMode(FInputModeUIOnly());
+	SetShowMouseCursor(true);
 	
 	if (IsLocalController() && !LobbyUI)
 	{
@@ -97,11 +71,18 @@ void ALobbyPlayerController::SetGameMode(ALobbyGameMode* InGameMode)
 	GameMode = InGameMode;
 }
 
+void ALobbyPlayerController::SetAllReady(bool bAllReady)
+{
+	LobbyUI->SetAllReady(bAllReady);
+}
+
+
 void ALobbyPlayerController::ToggleReadyState_Implementation()
 {
 	if (DMLPlayerState && PlayerPlatform)
 	{
 		DMLPlayerState->ToggleReadyState();
 		PlayerPlatform->RefreshInfo();
+		GameMode->CheckAllReady();
 	}
 }

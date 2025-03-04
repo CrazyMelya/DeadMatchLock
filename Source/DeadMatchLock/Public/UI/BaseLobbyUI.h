@@ -21,6 +21,9 @@ public:
 	UFUNCTION()
 	void SetPlayerController(ALobbyPlayerController* InPlayerController);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetAllReady(bool bAllReady);
+
 private:
 	UPROPERTY()
 	ALobbyPlayerController* PlayerController;

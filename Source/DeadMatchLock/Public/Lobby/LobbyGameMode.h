@@ -20,6 +20,9 @@ class DEADMATCHLOCK_API ALobbyGameMode : public AGameModeBase
 public:
 	UFUNCTION()
 	void CloseLobby();
+
+	UFUNCTION(Server, Reliable)
+	void CheckAllReady();
 	
 protected:
 	virtual void OnPostLogin(AController* NewPlayer) override;
@@ -31,6 +34,9 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ALobbyPlayerController*> Players;
+
+	UPROPERTY(BlueprintReadOnly)
+	ALobbyPlayerController* LobbyLeader;
 
 private:
 	UFUNCTION()
