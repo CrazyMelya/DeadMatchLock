@@ -35,22 +35,36 @@ void ALobbyPlayerController::RemovePlayerPlatform()
 	PlayerPlatform = nullptr;
 }
 
-void ALobbyPlayerController::LeaveLobby()
+void ALobbyPlayerController::LeaveLobby_Implementation()
 {
 	if (HasAuthority())
 	{
-		
+		GameMode->CloseLobby();
+		BP_LeaveLobby();
 	}
-	if (auto Sessions = Online::GetSessionInterface())
+	else
 	{
-		Sessions->DestroySession(NAME_GameSession);
-		Sessions->OnDestroySessionCompleteDelegates.AddUObject(this, &ALobbyPlayerController::OnSessionDestroyed);
+		BP_LeaveLobby();
 	}
+	// if (auto Sessions = Online::GetSessionInterface())
+	// {
+	// 	// Sessions
+	// 	Sessions->OnDestroySessionCompleteDelegates.AddUObject(this, &ALobbyPlayerController::OnSessionDestroyed);
+	// 	Sessions->DestroySession(NAME_GameSession);
+	// }
 }
 
 void ALobbyPlayerController::OnSessionDestroyed(FName SessionName, bool bSuccess)
 {
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/MainMenu"));
+	if (bSuccess)
+	{
+		if (auto Sessions = Online::GetSessionInterface())
+		{
+			Sessions->OnDestroySessionCompleteDelegates.Clear();
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Maps/MainMenu"));
+		}
+	}
+
 	// if (HasAuthority()) // Если это хост (Listen Server)
 	// {
 	// 	GetWorld()->ServerTravel(TEXT("/Game/Maps/MainMenu")); // Закрываем сервер

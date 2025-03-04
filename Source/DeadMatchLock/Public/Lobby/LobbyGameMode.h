@@ -16,7 +16,11 @@ class DEADMATCHLOCK_API ALobbyGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	ALobbyGameMode(const FObjectInitializer& ObjectInitializer);
-
+	
+public:
+	UFUNCTION()
+	void CloseLobby();
+	
 protected:
 	virtual void OnPostLogin(AController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;

@@ -13,6 +13,17 @@ ALobbyGameMode::ALobbyGameMode(const FObjectInitializer& ObjectInitializer)
 	PlayerStateClass = ADMLPlayerState::StaticClass();
 }
 
+void ALobbyGameMode::CloseLobby()
+{
+	for (auto Player : Players)
+	{
+		if (!Player->IsLocalController())
+		{
+			Player->LeaveLobby();
+		}
+	}
+}
+
 void ALobbyGameMode::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);

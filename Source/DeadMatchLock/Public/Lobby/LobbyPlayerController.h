@@ -32,9 +32,12 @@ protected:
 public:
 	void SetPlayerPlatform(ALobbyPlayerPlatform* InPlayerPlatform);
 	void RemovePlayerPlatform();
-
-	// UFUNCTION(Server, Reliable)
+	
+	UFUNCTION(Client, Reliable)
 	void LeaveLobby();
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="LeaveLobby")
+	void BP_LeaveLobby();
 
 	virtual void BeginPlay() override;
 
