@@ -92,6 +92,12 @@ void ALobbyPlayerPlatform::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(ALobbyPlayerPlatform, PlayerState);
 }
 
+void ALobbyPlayerPlatform::SetCharacterData_Implementation(const FCharacterData& InCharacterData)
+{
+	CharacterData = InCharacterData;
+	BP_OnSetCharacterData(InCharacterData);
+}
+
 void ALobbyPlayerPlatform::OnRep_PlayerState()
 {
 	if (LobbyPlayerInfo && PlayerState)

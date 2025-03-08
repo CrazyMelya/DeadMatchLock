@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SharedTypes.h"
 #include "GameFramework/PlayerState.h"
 #include "DMLPlayerState.generated.h"
 
@@ -15,9 +16,20 @@ class DEADMATCHLOCK_API ADMLPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lobby State")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Lobby State")
 	bool bReady = false;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Character")
+	FCharacterData CharacterData;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void ToggleReadyState();
+
+	UFUNCTION()
+	void SetCharacterData(const FCharacterData& InCharacterData);
+
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void CopyProperties(APlayerState* PlayerState) override;
 };

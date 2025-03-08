@@ -8,7 +8,7 @@ void UDMLAbilitySystemComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	if ((GetNetMode() == NM_DedicatedServer || GetNetMode() == NM_ListenServer) && AbilityDataAsset)
+	if (GetNetMode() != NM_Client && AbilityDataAsset)
 		AbilityDataAsset->GiveAbilities(this);
 	AbilityActivatedCallbacks.AddUObject(this, &UDMLAbilitySystemComponent::OnAbilityActivatedCallback);
 	OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &UDMLAbilitySystemComponent::OnEffectRemovedCallback);

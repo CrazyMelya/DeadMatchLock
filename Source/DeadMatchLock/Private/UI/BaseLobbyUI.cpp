@@ -20,3 +20,8 @@ void UBaseLobbyUI::SetPlayerController(ALobbyPlayerController* InPlayerControlle
 {
 	PlayerController = InPlayerController;
 }
+
+void UBaseLobbyUI::OnCharacterSelected(const FCharacterData& InCharacterData)
+{
+	PlayerController->OnCharacterSelected(InCharacterData);
+}

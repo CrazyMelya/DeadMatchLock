@@ -89,7 +89,7 @@ void UDMLGameplayAbility_Fire::ActivateAbility(const FGameplayAbilitySpecHandle 
 			bool bFound;
 			auto FireTime = GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValue(UCharactersAttributeSet::GetFireRateAttribute(), bFound);
 			if (bFound)
-				GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &UDMLGameplayAbility_Fire::Fire, FireTime, true);
+				GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &UDMLGameplayAbility_Fire::Fire, FireTime, true, 0);
 		}
 		else
 			CancelAbility(Handle, ActorInfo, ActivationInfo, true);

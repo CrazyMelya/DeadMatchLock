@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SharedTypes.h"
 #include "GameFramework/Actor.h"
 #include "UI/LobbyPlayerInfo.h"
 #include "LobbyPlayerPlatform.generated.h"
@@ -27,6 +28,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly)
+	FCharacterData CharacterData;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -50,6 +54,12 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void RefreshInfo();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SetCharacterData(const FCharacterData& InCharacterData);
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnSetCharacterData")
+	void BP_OnSetCharacterData(const FCharacterData& InCharacterData);
 
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_PlayerState)

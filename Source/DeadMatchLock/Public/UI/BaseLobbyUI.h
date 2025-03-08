@@ -33,4 +33,8 @@ private:
 
 	UFUNCTION(BlueprintCallable)
 	void LeaveLobby();
+
+protected:
+	UFUNCTION(BlueprintCallable)
+	void OnCharacterSelected(const FCharacterData& InCharacterData);
 };

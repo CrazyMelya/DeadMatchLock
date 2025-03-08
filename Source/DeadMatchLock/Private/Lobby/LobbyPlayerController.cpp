@@ -19,8 +19,8 @@ void ALobbyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ALobbyPlayerController, DMLPlayerState);
-	DOREPLIFETIME(ALobbyPlayerController, PlayerPlatform);
+	DOREPLIFETIME(ThisClass, DMLPlayerState);
+	DOREPLIFETIME(ThisClass, PlayerPlatform);
 }
 
 void ALobbyPlayerController::SetPlayerPlatform(ALobbyPlayerPlatform* InPlayerPlatform)
@@ -76,6 +76,11 @@ void ALobbyPlayerController::SetAllReady(bool bAllReady)
 	LobbyUI->SetAllReady(bAllReady);
 }
 
+void ALobbyPlayerController::OnCharacterSelected_Implementation(const FCharacterData& InCharacterData)
+{
+	DMLPlayerState->SetCharacterData(InCharacterData);
+	PlayerPlatform->SetCharacterData(InCharacterData);
+}
 
 void ALobbyPlayerController::ToggleReadyState_Implementation()
 {

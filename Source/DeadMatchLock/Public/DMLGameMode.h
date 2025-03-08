@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DMLPlayerController.h"
+#include "GamePlayerController.h"
 #include "GameFramework/GameModeBase.h"
 #include "DMLGameMode.generated.h"
 
@@ -15,16 +15,18 @@ class ADMLGameMode : public AGameModeBase
 public:
 	ADMLGameMode();
 
-	void NotifyPlayerDeath(ADMLPlayerController* Controller);
+	void NotifyPlayerDeath(AGamePlayerController* Controller);
 
 protected:
-	virtual void RespawnPlayer(ADMLPlayerController* Controller);
+	virtual void RespawnPlayer(AGamePlayerController* Controller);
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
+	virtual APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
+
 private:
 	UPROPERTY()
-	TMap<ADMLPlayerController*, FTimerHandle> RespawnTimers;
+	TMap<AGamePlayerController*, FTimerHandle> RespawnTimers;
 };
 
 

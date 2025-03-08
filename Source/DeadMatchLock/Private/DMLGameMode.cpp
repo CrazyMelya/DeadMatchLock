@@ -3,7 +3,7 @@
 #include "DMLGameMode.h"
 
 #include "DMLCharacter.h"
-#include "DMLPlayerController.h"
+#include "GamePlayerController.h"
 #include "DMLPlayerState.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerStart.h"
@@ -17,11 +17,11 @@ ADMLGameMode::ADMLGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	PlayerControllerClass = ADMLPlayerController::StaticClass();
+	PlayerControllerClass = AGamePlayerController::StaticClass();
 	PlayerStateClass = ADMLPlayerState::StaticClass();
 }
 
-void ADMLGameMode::NotifyPlayerDeath(ADMLPlayerController* Controller)
+void ADMLGameMode::NotifyPlayerDeath(AGamePlayerController* Controller)
 {
 	if (Controller)
 	{
@@ -35,7 +35,7 @@ void ADMLGameMode::NotifyPlayerDeath(ADMLPlayerController* Controller)
 	}
 }
 
-void ADMLGameMode::RespawnPlayer(ADMLPlayerController* Controller)
+void ADMLGameMode::RespawnPlayer(AGamePlayerController* Controller)
 {
 	if (Controller)
 	{
@@ -45,7 +45,11 @@ void ADMLGameMode::RespawnPlayer(ADMLPlayerController* Controller)
 		{
 			FVector RespawnLocation = PlayerStart->GetActorLocation();
 			FRotator RespawnRotation = PlayerStart->GetActorRotation();
-			auto NewCharacter = GetWorld()->SpawnActor<ADMLCharacter>(DefaultPawnClass, RespawnLocation, RespawnRotation);
+			auto CharacterClass =  Controller->GetPlayerState<ADMLPlayerState>()->CharacterData.CharacterClass;
+			auto NewCharacter = GetWorld()->SpawnActor<ADMLCharacter>(
+				CharacterClass ? CharacterClass : DefaultPawnClass,
+				RespawnLocation,
+				RespawnRotation);
 			if (NewCharacter)
 			{
 				Controller->Possess(NewCharacter);
@@ -76,4 +80,23 @@ AActor* ADMLGameMode::ChoosePlayerStart_Implementation(AController* Player)
 
 	// Если точек спавна нет, используем стандартное поведение
 	return Super::ChoosePlayerStart_Implementation(Player);
+}
+
+APawn* ADMLGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
+{
+	if (!NewPlayer) return nullptr;
+
+	auto PS = NewPlayer->GetPlayerState<ADMLPlayerState>();
+	if (PS)
+	{
+		auto CharacterClass =  PS->CharacterData.CharacterClass;
+		return GetWorld()->SpawnActor<ACharacter>(
+			CharacterClass ? CharacterClass : DefaultPawnClass,
+			StartSpot->GetActorLocation(),
+			StartSpot->GetActorRotation()
+		);
+	}
+
+	// Если нет выбранного класса, спавним дефолтного
+	return Super::SpawnDefaultPawnFor(NewPlayer, StartSpot);
 }

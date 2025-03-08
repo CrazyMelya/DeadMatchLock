@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DMLPlayerController.h"
+#include "GamePlayerController.h"
 #include "GameFramework/GameModeBase.h"
 #include "DMLMainMenuGameMode.generated.h"
 

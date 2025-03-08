@@ -47,29 +47,23 @@ struct FAbilityInitData
 };
 
 USTRUCT(BlueprintType)
-struct FCharactersData
+struct FCharacterData: public FTableRowBase
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FAbilityInitData Ability1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FAbilityInitData Ability2;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FAbilityInitData Ability3;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FAbilityInitData Ability4;
-};
-
-USTRUCT(BlueprintType)
-struct FLobbyPlayerData
-{
-	GENERATED_BODY()
+	FName Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bReady = false;
+	UMaterialInstance* FirstMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInstance* SecondMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Avatar;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ADMLCharacter> CharacterClass;
 };
 

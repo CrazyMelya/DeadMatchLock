@@ -3,7 +3,7 @@
 #include "DMLCharacter.h"
 
 #include "DMLGameMode.h"
-#include "DMLPlayerController.h"
+#include "GamePlayerController.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -111,7 +111,7 @@ void ADMLCharacter::Die_Implementation()
 	if (HasAuthority())
 	{
 		AbilitySystemComponent->RemoveAllActiveGameplayEffects();
-		auto PlayerController = Cast<ADMLPlayerController>(GetController());
+		auto PlayerController = Cast<AGamePlayerController>(GetController());
 		if (PlayerController)
 		{
 			PlayerController->UnPossess();
@@ -157,13 +157,13 @@ void ADMLCharacter::Die_Client_Implementation()
 void ADMLCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
+	// if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	// {
+	// 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	// 	{
+	// 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	// 	}
+	// }
 	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))

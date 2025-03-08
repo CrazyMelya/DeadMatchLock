@@ -28,6 +28,7 @@ protected:
 	virtual void OnPostLogin(AController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 	virtual void BeginPlay() override;
+	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ALobbyPlayerPlatform*> Platforms;
@@ -47,6 +48,9 @@ private:
 
 	UFUNCTION()
 	void SetupNewPlayer(ALobbyPlayerController* Player);
+
+	UFUNCTION()
+	void OnNewPlayerConnected(ALobbyPlayerController* Player);
 
 	UPROPERTY()
 	bool bPlatformsSet = false;

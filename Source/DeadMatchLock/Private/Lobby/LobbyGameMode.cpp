@@ -41,18 +41,7 @@ void ALobbyGameMode::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);
 
-	if (auto LobbyPlayerController = Cast<ALobbyPlayerController>(NewPlayer))
-	{
-		if (!LobbyLeader)
-			LobbyLeader = LobbyPlayerController;
-		else
-			LobbyLeader->SetAllReady(false);
-		Players.Add(LobbyPlayerController);
-		LobbyPlayerController->SetGameMode(this);
-		if (bPlatformsSet)
-			SetupNewPlayer(LobbyPlayerController);
-		
-	}
+	OnNewPlayerConnected(Cast<ALobbyPlayerController>(NewPlayer));
 }
 
 void ALobbyGameMode::Logout(AController* Exiting)
@@ -73,6 +62,13 @@ void ALobbyGameMode::BeginPlay()
 
 	SetupPlatforms();
 	SetupFirstPlayers();
+}
+
+void ALobbyGameMode::HandleSeamlessTravelPlayer(AController*& C)
+{
+	Super::HandleSeamlessTravelPlayer(C);
+
+	OnNewPlayerConnected(Cast<ALobbyPlayerController>(C));
 }
 
 void ALobbyGameMode::SetupFirstPlayers()
@@ -112,3 +108,19 @@ void ALobbyGameMode::SetupNewPlayer(ALobbyPlayerController* Player)
 		}
 	}
 }
+
+void ALobbyGameMode::OnNewPlayerConnected(ALobbyPlayerController* Player)
+{
+	if (Player)
+	{
+		if (!LobbyLeader && Player->IsLocalController())
+			LobbyLeader = Player;
+		else
+			LobbyLeader->SetAllReady(false);
+		Players.Add(Player);
+		Player->SetGameMode(this);
+		if (bPlatformsSet)
+			SetupNewPlayer(Player);
+	}
+}
+

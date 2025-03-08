@@ -53,6 +53,9 @@ public:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	ADMLPlayerState* DMLPlayerState;
 
+	UFUNCTION(Server, Reliable)
+	void OnCharacterSelected(const FCharacterData& InCharacterData);
+
 private:
 	UPROPERTY(Replicated)
 	ALobbyPlayerPlatform* PlayerPlatform;
