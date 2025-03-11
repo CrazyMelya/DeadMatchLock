@@ -3,8 +3,7 @@
 
 #include "Lobby/LobbyPlayerController.h"
 
-#include "Online.h"
-#include "Kismet/GameplayStatics.h"
+#include "Lobby/LobbyPlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -12,21 +11,21 @@ void ALobbyPlayerController::InitPlayerState()
 {
 	Super::InitPlayerState();
 
-	DMLPlayerState = Cast<ADMLPlayerState>(PlayerState);
+	LobbyPlayerState = Cast<ALobbyPlayerState>(PlayerState);
 }
 
 void ALobbyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ThisClass, DMLPlayerState);
+	DOREPLIFETIME(ThisClass, LobbyPlayerState);
 	DOREPLIFETIME(ThisClass, PlayerPlatform);
 }
 
 void ALobbyPlayerController::SetPlayerPlatform(ALobbyPlayerPlatform* InPlayerPlatform)
 {
 	PlayerPlatform = InPlayerPlatform;
-	PlayerPlatform->SetPlayer(DMLPlayerState);
+	PlayerPlatform->SetPlayer(LobbyPlayerState);
 }
 
 void ALobbyPlayerController::RemovePlayerPlatform()
@@ -39,7 +38,7 @@ void ALobbyPlayerController::LeaveLobby_Implementation()
 {
 	if (HasAuthority())
 	{
-		GameMode->CloseLobby();
+		LobbyGameMode->CloseLobby();
 		BP_LeaveLobby();
 	}
 	else
@@ -59,35 +58,33 @@ void ALobbyPlayerController::BeginPlay()
 		if (LobbyUI)
 		{
 			LobbyUI->SetPlayerController(this);
+			LobbyUI->OnCharacterSelected.AddDynamic(this, &ALobbyPlayerController::PickCharacter);
 			LobbyUI->AddToViewport();
+			LobbyUI->SetGameState(GetWorld()->GetGameState<ALobbyGameState>());
 		}
 	}
-
 	Super::BeginPlay();
 }
 
 void ALobbyPlayerController::SetGameMode(ALobbyGameMode* InGameMode)
 {
-	GameMode = InGameMode;
+	LobbyGameMode = InGameMode;
 }
 
-void ALobbyPlayerController::SetAllReady(bool bAllReady)
+void ALobbyPlayerController::StartGame_Implementation()
 {
-	LobbyUI->SetAllReady(bAllReady);
+	LobbyGameMode->StartSelectionStage();
 }
 
-void ALobbyPlayerController::OnCharacterSelected_Implementation(const FCharacterData& InCharacterData)
+void ALobbyPlayerController::PickCharacter_Implementation(const FName& CharacterName)
 {
-	DMLPlayerState->SetCharacterData(InCharacterData);
-	PlayerPlatform->SetCharacterData(InCharacterData);
+	LobbyGameMode->PickCharacter(this, CharacterName);
 }
 
 void ALobbyPlayerController::ToggleReadyState_Implementation()
 {
-	if (DMLPlayerState && PlayerPlatform)
+	if (LobbyPlayerState && PlayerPlatform)
 	{
-		DMLPlayerState->ToggleReadyState();
-		PlayerPlatform->RefreshInfo();
-		GameMode->CheckAllReady();
+		LobbyPlayerState->ToggleReadyState();
 	}
 }

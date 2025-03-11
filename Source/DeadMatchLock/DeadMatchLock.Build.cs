@@ -28,7 +28,8 @@ public class DeadMatchLock : ModuleRules
 			"DeveloperSettings",
 			"OnlineSubsystem",
 			"OnlineSubsystemUtils",
-			"OnlineSubsystemSteam"
+			"OnlineSubsystemSteam",
+			"AdvancedSessions"
 		});
 
 		PublicIncludePaths.AddRange(new string[]

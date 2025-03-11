@@ -110,7 +110,7 @@ ULobbyManager* ULobbyManager::Get(const UObject* WorldContextObject)
 
 	if (!GameInstance) return nullptr;
 
-	return GameInstance->GetLobbyManager();
+	return nullptr;
 }
 
 bool ULobbyManager::StartMatch(const FLobbyData& LobbyData)

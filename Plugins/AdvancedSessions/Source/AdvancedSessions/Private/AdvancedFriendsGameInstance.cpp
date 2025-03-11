@@ -113,7 +113,9 @@ void UAdvancedFriendsGameInstance::Shutdown()
 void UAdvancedFriendsGameInstance::Init()
 {
 	IOnlineSessionPtr SessionInterface = Online::GetSessionInterface(GetWorld());//OnlineSub->GetSessionInterface();
-
+	// auto OnlineSubsystem = Online::GetSubsystem(GetWorld());
+	// auto SessionInterface = OnlineSubsystem->GetSessionInterface();
+	UE_LOG(AdvancedFriendsInterfaceLog, Warning, TEXT("Init advanced friends game instance!"))
 	if (SessionInterface.IsValid())
 	{
 		// Currently doesn't store a handle or assign a delegate to any local player beyond the first.....should handle?
@@ -144,7 +146,6 @@ void UAdvancedFriendsGameInstance::Init()
 		}
 		else
 		{
-
 			UE_LOG(AdvancedFriendsInterfaceLog, Warning, TEXT("UAdvancedFriendsInstance Failed to get voice interface!"));
 		}
 	}
@@ -289,6 +290,7 @@ void UAdvancedFriendsGameInstance::OnPlayerTalkingStateChangedMaster(TSharedRef<
 
 void UAdvancedFriendsGameInstance::OnSessionInviteReceivedMaster(const FUniqueNetId & PersonInvited, const FUniqueNetId & PersonInviting, const FString& AppId, const FOnlineSessionSearchResult& SessionToJoin)
 {
+	UE_LOG(AdvancedFriendsInterfaceLog, Warning, TEXT("UAdvancedFriendsInstance Invite Received!"));
 	if (SessionToJoin.IsValid())
 	{
 		FBlueprintSessionResult BluePrintResult;
@@ -349,6 +351,7 @@ void UAdvancedFriendsGameInstance::OnSessionInviteReceivedMaster(const FUniqueNe
 
 void UAdvancedFriendsGameInstance::OnSessionInviteAcceptedMaster(const bool bWasSuccessful, int32 LocalPlayer, TSharedPtr<const FUniqueNetId> PersonInvited, const FOnlineSessionSearchResult& SessionToJoin)
 {
+	UE_LOG(AdvancedFriendsInterfaceLog, Warning, TEXT("UAdvancedFriendsInstance Invite Accepted!"));
 	if (bWasSuccessful)
 	{
 		if (SessionToJoin.IsValid())

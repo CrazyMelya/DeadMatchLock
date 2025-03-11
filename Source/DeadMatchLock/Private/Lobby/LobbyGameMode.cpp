@@ -5,36 +5,40 @@
 
 #include "DMLPlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Lobby/LobbyGameState.h"
 #include "Lobby/LobbyPlayerController.h"
+#include "Lobby/LobbyPlayerState.h"
 
 
 ALobbyGameMode::ALobbyGameMode(const FObjectInitializer& ObjectInitializer)
 {
-	PlayerStateClass = ADMLPlayerState::StaticClass();
+	PlayerStateClass = ALobbyPlayerState::StaticClass();
+	GameStateClass = ALobbyGameState::StaticClass();
 }
 
 void ALobbyGameMode::CloseLobby()
 {
 	for (auto Player : Players)
 	{
-		if (Player != LobbyLeader)
-		{
+		if (!Player->IsLocalController())
 			Player->LeaveLobby();
-		}
 	}
 }
 
-void ALobbyGameMode::CheckAllReady_Implementation()
+void ALobbyGameMode::PickCharacter(ALobbyPlayerController* PickingPlayer, const FName& CharacterName)
 {
-	for (auto Player : Players)
+	if (PickingPlayer && AvailableCharacters.Contains(CharacterName))
 	{
-		if (!Player->DMLPlayerState->bReady)
-		{
-			LobbyLeader->SetAllReady(false);
-			return;
-		}
+		AvailableCharacters.Remove(CharacterName);
+		LobbyGameState->SetAvailableCharacters(AvailableCharacters);
+		PickingPlayer->LobbyPlayerState->SetCharacterName(CharacterName);
 	}
-	LobbyLeader->SetAllReady(true);
+}
+
+void ALobbyGameMode::PickRandomCharacter(ALobbyPlayerController* PickingPlayer)
+{
+	auto RandomCharacter = AvailableCharacters[FMath::RandRange(0, AvailableCharacters.Num() - 1)];
+	PickCharacter(PickingPlayer, RandomCharacter);
 }
 
 void ALobbyGameMode::OnPostLogin(AController* NewPlayer)
@@ -52,7 +56,10 @@ void ALobbyGameMode::Logout(AController* Exiting)
 	{
 		LobbyPlayerController->RemovePlayerPlatform();
 		Players.Remove(LobbyPlayerController);
-		CheckAllReady();
+		for (auto Player : Players)
+		{
+			Player->LobbyPlayerState->bReady = false;
+		}
 	}
 }
 
@@ -60,6 +67,7 @@ void ALobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetupCharacters();
 	SetupPlatforms();
 	SetupFirstPlayers();
 }
@@ -71,10 +79,19 @@ void ALobbyGameMode::HandleSeamlessTravelPlayer(AController*& C)
 	OnNewPlayerConnected(Cast<ALobbyPlayerController>(C));
 }
 
+void ALobbyGameMode::InitGameState()
+{
+	Super::InitGameState();
+
+	LobbyGameState = Cast<ALobbyGameState>(GameState);
+}
+
 void ALobbyGameMode::SetupFirstPlayers()
 {
 	for (int i = 0; i < Players.Num(); i++)
+	{
 		Players[i]->SetPlayerPlatform(Platforms[i]);
+	}
 }
 
 void ALobbyGameMode::SetupPlatforms()
@@ -97,30 +114,84 @@ void ALobbyGameMode::SetupPlatforms()
 	bPlatformsSet = true;
 }
 
-void ALobbyGameMode::SetupNewPlayer(ALobbyPlayerController* Player)
+void ALobbyGameMode::SetupCharacters()
+{
+	if (CharactersDataTable)
+	{
+		AvailableCharacters = CharactersDataTable->GetRowNames();
+		LobbyGameState->SetAvailableCharacters(AvailableCharacters);
+	}
+}
+
+void ALobbyGameMode::SetupNewPlayer(ALobbyPlayerController* NewPlayer)
 {
 	for (auto Platform : Platforms)
 	{
 		if (!Platform->GetPossessed())
 		{
-			Player->SetPlayerPlatform(Platform);
+			NewPlayer->SetPlayerPlatform(Platform);
 			break;
 		}
 	}
 }
 
-void ALobbyGameMode::OnNewPlayerConnected(ALobbyPlayerController* Player)
+void ALobbyGameMode::OnNewPlayerConnected(ALobbyPlayerController* NewPlayer)
 {
-	if (Player)
+	if (NewPlayer)
 	{
-		if (!LobbyLeader && Player->IsLocalController())
-			LobbyLeader = Player;
-		else
-			LobbyLeader->SetAllReady(false);
-		Players.Add(Player);
-		Player->SetGameMode(this);
+		Players.Add(NewPlayer);
+		NewPlayer->SetGameMode(this);
 		if (bPlatformsSet)
-			SetupNewPlayer(Player);
+			SetupNewPlayer(NewPlayer);
+		for (auto Player : Players)
+		{
+			if (Player->LobbyPlayerState)
+				Player->LobbyPlayerState->SetReadyState(false);
+		}
+	}
+}
+
+void ALobbyGameMode::StartSelectionStage()
+{
+	LobbyGameState->SetLobbyStage(Selection);
+	LobbyGameState->RemainingTime = SelectionTime;
+	GetWorld()->GetTimerManager().SetTimer(Timer, this, &ALobbyGameMode::SelectCharacterTimerTick, 1.0f, true);
+}
+
+void ALobbyGameMode::SelectCharacterTimerTick()
+{
+	LobbyGameState->RemainingTime--;
+	if (LobbyGameState->RemainingTime == 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(Timer);
+		EndSelectionStage();
+	}
+}
+
+void ALobbyGameMode::EndSelectionStage()
+{
+	PickRandomCharacters();
+	LobbyGameState->SetLobbyStage(FinalCountdown);
+	LobbyGameState->RemainingTime = 10;
+	GetWorld()->GetTimerManager().SetTimer(Timer, this, &ALobbyGameMode::FinalCountdownTick, 1.0f, true);
+}
+
+void ALobbyGameMode::PickRandomCharacters()
+{
+	for (auto Player : Players)
+	{
+		if (Player->LobbyPlayerState->CharacterName.IsNone())
+			PickRandomCharacter(Player);
+	}
+}
+
+void ALobbyGameMode::FinalCountdownTick()
+{
+	LobbyGameState->RemainingTime--;
+	if (LobbyGameState->RemainingTime == 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(Timer);
+		BP_StartGame();
 	}
 }
 

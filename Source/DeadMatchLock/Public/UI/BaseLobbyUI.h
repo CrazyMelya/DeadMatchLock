@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Lobby/LobbyGameMode.h"
+#include "Lobby/LobbyGameState.h"
 #include "BaseLobbyUI.generated.h"
 
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDynamicOnCharacterSelected, const FName&, CharacterName);
 
 class ALobbyPlayerController;
 
@@ -20,9 +24,12 @@ class DEADMATCHLOCK_API UBaseLobbyUI : public UUserWidget
 public:
 	UFUNCTION()
 	void SetPlayerController(ALobbyPlayerController* InPlayerController);
+		
+	UFUNCTION()
+	void SetGameState(ALobbyGameState* InGameState);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetAllReady(bool bAllReady);
+	UPROPERTY(BlueprintCallable)
+	FDynamicOnCharacterSelected OnCharacterSelected;
 
 private:
 	UPROPERTY()
@@ -34,7 +41,32 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void LeaveLobby();
 
-protected:
 	UFUNCTION(BlueprintCallable)
-	void OnCharacterSelected(const FCharacterData& InCharacterData);
+	void StartGame();
+	
+	UFUNCTION()
+	void OnRep_GameState();
+
+	FDelegateHandle OnAllReadyChangedDelegateHandle;
+	FDelegateHandle OnLobbyStageChangedDelegateHandle;
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnAvailableCharactersChanged")
+	void BP_OnAvailableCharactersChanged(const TArray<FName>& InAvailableCharacters);
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnLobbyStageChanged")
+	void BP_OnLobbyStageChanged(const TEnumAsByte<ELobbyStage>& LobbyStage);
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnAllReadyChanged")
+	void BP_OnAllReadyChanged(bool bAllReady);
+	
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FName> AvailableCharacters;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_GameState)
+	ALobbyGameState* GameState;
+
+	virtual void NativeDestruct() override;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 };
+

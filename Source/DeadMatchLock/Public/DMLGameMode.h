@@ -24,6 +24,9 @@ protected:
 
 	virtual APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gameplay")
+	UDataTable* Characters;
+
 private:
 	UPROPERTY()
 	TMap<AGamePlayerController*, FTimerHandle> RespawnTimers;

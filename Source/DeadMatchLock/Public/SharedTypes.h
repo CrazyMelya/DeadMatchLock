@@ -55,15 +55,15 @@ struct FCharacterData: public FTableRowBase
 	FName Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterialInstance* FirstMaterial;
+	UMaterialInstance* FirstMaterial = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterialInstance* SecondMaterial;
+	UMaterialInstance* SecondMaterial = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* Avatar;
+	UTexture2D* Avatar = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class ADMLCharacter> CharacterClass;
+	TSubclassOf<class ADMLCharacter> CharacterClass = nullptr;
 };
 

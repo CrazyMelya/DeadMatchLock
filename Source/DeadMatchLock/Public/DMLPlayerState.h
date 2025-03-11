@@ -16,20 +16,9 @@ class DEADMATCHLOCK_API ADMLPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Lobby State")
-	bool bReady = false;
-
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Character")
-	FCharacterData CharacterData;
-
-	UFUNCTION(NetMulticast, Reliable)
-	void ToggleReadyState();
-
-	UFUNCTION()
-	void SetCharacterData(const FCharacterData& InCharacterData);
+	FName CharacterName;
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-
-	virtual void CopyProperties(APlayerState* PlayerState) override;
 };

@@ -40,14 +40,20 @@ void ADMLGameMode::RespawnPlayer(AGamePlayerController* Controller)
 	if (Controller)
 	{
 		RespawnTimers.Remove(Controller);
-		auto PlayerStart = ChoosePlayerStart(Controller);
-		if (PlayerStart)
+		if (auto PlayerStart = ChoosePlayerStart(Controller))
 		{
 			FVector RespawnLocation = PlayerStart->GetActorLocation();
 			FRotator RespawnRotation = PlayerStart->GetActorRotation();
-			auto CharacterClass =  Controller->GetPlayerState<ADMLPlayerState>()->CharacterData.CharacterClass;
+			Controller->ClientSetRotation(RespawnRotation);
+			TSubclassOf<APawn> PawnClass = DefaultPawnClass;
+			auto PlayerState = Controller->GetPlayerState<ADMLPlayerState>();
+			if (Characters && PlayerState)
+			{
+				if (auto CharacterData = Characters->FindRow<FCharacterData>(PlayerState->CharacterName, TEXT("Spawn Player")))
+					PawnClass = CharacterData->CharacterClass;
+			}
 			auto NewCharacter = GetWorld()->SpawnActor<ADMLCharacter>(
-				CharacterClass ? CharacterClass : DefaultPawnClass,
+				PawnClass,
 				RespawnLocation,
 				RespawnRotation);
 			if (NewCharacter)
@@ -86,17 +92,16 @@ APawn* ADMLGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, 
 {
 	if (!NewPlayer) return nullptr;
 
-	auto PS = NewPlayer->GetPlayerState<ADMLPlayerState>();
-	if (PS)
+	TSubclassOf<APawn> PawnClass = DefaultPawnClass;
+	auto PlayerState = NewPlayer->GetPlayerState<ADMLPlayerState>();
+	if (Characters && PlayerState)
 	{
-		auto CharacterClass =  PS->CharacterData.CharacterClass;
-		return GetWorld()->SpawnActor<ACharacter>(
-			CharacterClass ? CharacterClass : DefaultPawnClass,
-			StartSpot->GetActorLocation(),
-			StartSpot->GetActorRotation()
-		);
+		if (auto CharacterData = Characters->FindRow<FCharacterData>(PlayerState->CharacterName, TEXT("Spawn Player")))
+			PawnClass = CharacterData->CharacterClass;
 	}
-
-	// Если нет выбранного класса, спавним дефолтного
-	return Super::SpawnDefaultPawnFor(NewPlayer, StartSpot);
+	return GetWorld()->SpawnActor<ACharacter>(
+		PawnClass,
+		StartSpot->GetActorLocation(),
+		StartSpot->GetActorRotation()
+	);
 }

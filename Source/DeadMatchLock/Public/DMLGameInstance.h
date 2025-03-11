@@ -3,32 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LobbyManager.h"
-#include "SharedTypes.h"
+#include "AdvancedFriendsGameInstance.h"
 #include "Engine/GameInstance.h"
 #include "Templates/SharedPointer.h"
 #include "DMLGameInstance.generated.h"
 
 UCLASS()
-class DEADMATCHLOCK_API UDMLGameInstance : public UGameInstance
+class DEADMATCHLOCK_API UDMLGameInstance : public UAdvancedFriendsGameInstance
 {
 	GENERATED_BODY()
 	
-	virtual void Init() override;
 
-	UPROPERTY()
-	ULobbyManager* LobbyManager;
-
-public:
-	UFUNCTION(BlueprintCallable)
-	ULobbyManager* GetLobbyManager() const;
-
-	UFUNCTION(BlueprintCallable)
-	void CreateDedicatedSession();
-
-	UFUNCTION(BlueprintCallable)
-	void CreateSession(const FName SessionName);
-
-	UFUNCTION()
-	void OnCreateSession(FName SessionName, bool Success);
 };

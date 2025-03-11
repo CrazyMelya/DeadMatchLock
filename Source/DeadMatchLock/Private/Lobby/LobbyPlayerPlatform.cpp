@@ -5,6 +5,7 @@
 
 #include "Components/WidgetComponent.h"
 #include "Lobby/LobbyPlayerController.h"
+#include "Lobby/LobbyPlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -39,17 +40,17 @@ ALobbyPlayerPlatform::ALobbyPlayerPlatform()
 	CharacterMesh->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 
     // Create and init widget components
-	WC_LobbyPlayerInfo = CreateDefaultSubobject<UWidgetComponent>(TEXT("LobbyPlayerInfo"));
-	WC_LobbyPlayerInfo->SetupAttachment(RootComponent);
-	WC_LobbyPlayerInfo->SetupAttachment(CharacterMesh);
-	WC_LobbyPlayerInfo->SetHiddenInGame(true);
-	WC_LobbyPlayerInfo->SetWidgetSpace(EWidgetSpace::Screen);
-	WC_LobbyPlayerInfo->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
+	WCLobbyPlayerInfo = CreateDefaultSubobject<UWidgetComponent>(TEXT("LobbyPlayerInfo"));
+	WCLobbyPlayerInfo->SetupAttachment(RootComponent);
+	WCLobbyPlayerInfo->SetupAttachment(CharacterMesh);
+	WCLobbyPlayerInfo->SetHiddenInGame(true);
+	WCLobbyPlayerInfo->SetWidgetSpace(EWidgetSpace::Screen);
+	WCLobbyPlayerInfo->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
 
 	SetReplicates(true);
 }
 
-void ALobbyPlayerPlatform::SetPlayer(ADMLPlayerState* InPlayerState)
+void ALobbyPlayerPlatform::SetPlayer(ALobbyPlayerState* InPlayerState)
 {
 	PlayerState = InPlayerState;
 	OnRep_PlayerState();
@@ -58,6 +59,7 @@ void ALobbyPlayerPlatform::SetPlayer(ADMLPlayerState* InPlayerState)
 void ALobbyPlayerPlatform::RemovePlayer()
 {
 	PlayerState = nullptr;
+	
 	OnRep_PlayerState();
 }
 
@@ -65,11 +67,11 @@ void ALobbyPlayerPlatform::RemovePlayer()
 void ALobbyPlayerPlatform::BeginPlay()
 {
 	Super::BeginPlay();
-
-	LobbyPlayerInfo = Cast<ULobbyPlayerInfo>(WC_LobbyPlayerInfo->GetWidget());
+	
 	if (PlayerState)
 	{
-		LobbyPlayerInfo->SetPlayerState(PlayerState);
+		PlayerState->OnReadyStateChanged.AddUObject(this, &ALobbyPlayerPlatform::BP_OnReadyStateChanged);
+		PlayerState->OnCharacterSelected.AddUObject(this, &ALobbyPlayerPlatform::BP_OnCharacterSelected);
 		CharacterMesh->SetHiddenInGame(false, true);
 	}
 }
@@ -92,28 +94,18 @@ void ALobbyPlayerPlatform::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(ALobbyPlayerPlatform, PlayerState);
 }
 
-void ALobbyPlayerPlatform::SetCharacterData_Implementation(const FCharacterData& InCharacterData)
-{
-	CharacterData = InCharacterData;
-	BP_OnSetCharacterData(InCharacterData);
-}
-
 void ALobbyPlayerPlatform::OnRep_PlayerState()
 {
-	if (LobbyPlayerInfo && PlayerState)
+	if (PlayerState)
 	{
-		LobbyPlayerInfo->SetPlayerState(PlayerState);
+		PlayerState->OnReadyStateChanged.AddUObject(this, &ALobbyPlayerPlatform::BP_OnReadyStateChanged);
+		PlayerState->OnCharacterSelected.AddUObject(this, &ALobbyPlayerPlatform::BP_OnCharacterSelected);
 		CharacterMesh->SetHiddenInGame(false, true);
+		BP_OnSetPlayerState(PlayerState);
 	}
 	else
 	{
 		CharacterMesh->SetHiddenInGame(true, true);
 	}
-}
-
-void ALobbyPlayerPlatform::RefreshInfo_Implementation()
-{
-	if (LobbyPlayerInfo)
-		LobbyPlayerInfo->RefreshInfo();
 }
 

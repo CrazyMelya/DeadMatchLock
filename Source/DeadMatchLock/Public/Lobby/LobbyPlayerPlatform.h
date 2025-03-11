@@ -3,9 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SharedTypes.h"
 #include "GameFramework/Actor.h"
-#include "UI/LobbyPlayerInfo.h"
 #include "LobbyPlayerPlatform.generated.h"
 
 class UWidgetComponent;
@@ -20,7 +18,7 @@ public:
 	ALobbyPlayerPlatform();
 
 	UFUNCTION()
-	void SetPlayer(ADMLPlayerState* InPlayerState);
+	void SetPlayer(ALobbyPlayerState* InPlayerState);
 
 	void RemovePlayer();
 
@@ -28,9 +26,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly)
-	FCharacterData CharacterData;
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnSetPlayerState")
+	void BP_OnSetPlayerState(ALobbyPlayerState* InPlayerState);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PlayerState)
+	ALobbyPlayerState* PlayerState;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -41,33 +42,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* PlatformMesh;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* CharacterMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
-	UWidgetComponent* WC_LobbyPlayerInfo;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UWidgetComponent* WCLobbyPlayerInfo;
 
 	UFUNCTION()
 	bool GetPossessed();
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnReadyStateChanged")
+	void BP_OnReadyStateChanged(bool bReady);
 	
-	UFUNCTION(NetMulticast, Reliable)
-	void RefreshInfo();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void SetCharacterData(const FCharacterData& InCharacterData);
-
-	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnSetCharacterData")
-	void BP_OnSetCharacterData(const FCharacterData& InCharacterData);
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnCharacterSelected")
+	void BP_OnCharacterSelected(const FName& CharacterName);
 
 private:
-	UPROPERTY(ReplicatedUsing=OnRep_PlayerState)
-	ADMLPlayerState* PlayerState;
-
 	UFUNCTION()
 	void OnRep_PlayerState();
-
-	UPROPERTY()
-	ULobbyPlayerInfo* LobbyPlayerInfo;
 };

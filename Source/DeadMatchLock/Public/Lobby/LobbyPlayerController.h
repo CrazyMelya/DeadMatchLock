@@ -43,23 +43,23 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ToggleReadyState();
-
+	
 	UFUNCTION()
 	void SetGameMode(ALobbyGameMode* InGameMode);
 
-	UFUNCTION()
-	void SetAllReady(bool bAllReady);
-	
 	UPROPERTY(Replicated, BlueprintReadOnly)
-	ADMLPlayerState* DMLPlayerState;
+	ALobbyPlayerState* LobbyPlayerState;
 
 	UFUNCTION(Server, Reliable)
-	void OnCharacterSelected(const FCharacterData& InCharacterData);
+	void StartGame();
 
 private:
 	UPROPERTY(Replicated)
 	ALobbyPlayerPlatform* PlayerPlatform;
 	
 	UPROPERTY()
-	ALobbyGameMode* GameMode;
+	ALobbyGameMode* LobbyGameMode;
+
+	UFUNCTION(Server, Reliable)
+	void PickCharacter(const FName& CharacterName);
 };

@@ -10,6 +10,7 @@
 /**
  * 
  */
+
 UCLASS()
 class DEADMATCHLOCK_API ALobbyGameMode : public AGameModeBase
 {
@@ -21,14 +22,24 @@ public:
 	UFUNCTION()
 	void CloseLobby();
 
-	UFUNCTION(Server, Reliable)
-	void CheckAllReady();
+	UFUNCTION()
+	void PickCharacter(ALobbyPlayerController* PickingPlayer, const FName& CharacterName);
+
+	UFUNCTION()
+	void PickRandomCharacter(ALobbyPlayerController* PickingPlayer);
+
+	UPROPERTY()
+	class ALobbyGameState* LobbyGameState;
+
+	UFUNCTION()
+	void StartSelectionStage();
 	
 protected:
 	virtual void OnPostLogin(AController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 	virtual void BeginPlay() override;
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
+	virtual void InitGameState() override;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ALobbyPlayerPlatform*> Platforms;
@@ -36,8 +47,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ALobbyPlayerController*> Players;
 
-	UPROPERTY(BlueprintReadOnly)
-	ALobbyPlayerController* LobbyLeader;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UDataTable* CharactersDataTable;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float SelectionTime = 30;
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="StartGame")
+	void BP_StartGame();
 
 private:
 	UFUNCTION()
@@ -47,11 +64,32 @@ private:
 	void SetupPlatforms();
 
 	UFUNCTION()
-	void SetupNewPlayer(ALobbyPlayerController* Player);
+	void SetupCharacters();
 
 	UFUNCTION()
-	void OnNewPlayerConnected(ALobbyPlayerController* Player);
+	void SetupNewPlayer(ALobbyPlayerController* NewPlayer);
+
+	UFUNCTION()
+	void OnNewPlayerConnected(ALobbyPlayerController* NewPlayer);
 
 	UPROPERTY()
 	bool bPlatformsSet = false;
+
+	UPROPERTY()
+	TArray<FName> AvailableCharacters;
+
+	UPROPERTY()
+	FTimerHandle Timer;
+
+	UFUNCTION()
+	void SelectCharacterTimerTick();
+
+	UFUNCTION()
+	void EndSelectionStage();
+
+	UFUNCTION()
+	void PickRandomCharacters();
+	
+	UFUNCTION()
+	void FinalCountdownTick();
 };
