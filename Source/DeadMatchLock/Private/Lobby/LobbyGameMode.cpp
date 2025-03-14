@@ -25,17 +25,17 @@ void ALobbyGameMode::CloseLobby()
 	}
 }
 
-void ALobbyGameMode::PickCharacter(ALobbyPlayerController* PickingPlayer, const FName& CharacterName)
+void ALobbyGameMode::PickCharacter(ALobbyPlayerState* PickingPlayer, const FName& CharacterName)
 {
 	if (PickingPlayer && AvailableCharacters.Contains(CharacterName))
 	{
 		AvailableCharacters.Remove(CharacterName);
 		LobbyGameState->SetAvailableCharacters(AvailableCharacters);
-		PickingPlayer->LobbyPlayerState->SetCharacterName(CharacterName);
+		PickingPlayer->SetCharacterName(CharacterName);
 	}
 }
 
-void ALobbyGameMode::PickRandomCharacter(ALobbyPlayerController* PickingPlayer)
+void ALobbyGameMode::PickRandomCharacter(ALobbyPlayerState* PickingPlayer)
 {
 	auto RandomCharacter = AvailableCharacters[FMath::RandRange(0, AvailableCharacters.Num() - 1)];
 	PickCharacter(PickingPlayer, RandomCharacter);
@@ -58,7 +58,7 @@ void ALobbyGameMode::Logout(AController* Exiting)
 		Players.Remove(LobbyPlayerController);
 		for (auto Player : Players)
 		{
-			Player->LobbyPlayerState->bReady = false;
+			Player->LobbyPlayerState->SetReadyState(false);
 		}
 	}
 }
@@ -180,8 +180,8 @@ void ALobbyGameMode::PickRandomCharacters()
 {
 	for (auto Player : Players)
 	{
-		if (Player->LobbyPlayerState->CharacterName.IsNone())
-			PickRandomCharacter(Player);
+		if (!Player->LobbyPlayerState->CharacterSelected())
+			PickRandomCharacter(Player->LobbyPlayerState);
 	}
 }
 

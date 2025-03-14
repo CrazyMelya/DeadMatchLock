@@ -30,6 +30,9 @@ public:
 	void SetLobbyStage(TEnumAsByte<ELobbyStage> InLobbyStage);
 
 	UFUNCTION()
+	TEnumAsByte<ELobbyStage> GetLobbyStage();
+
+	UFUNCTION()
 	void SetAvailableCharacters(TArray<FName> InavailableCharacters);
 
 	UFUNCTION()

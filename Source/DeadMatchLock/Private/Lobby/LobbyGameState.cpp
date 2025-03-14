@@ -13,6 +13,11 @@ void ALobbyGameState::SetLobbyStage(TEnumAsByte<ELobbyStage> InLobbyStage)
 	OnRep_LobbyStage();
 }
 
+TEnumAsByte<ELobbyStage> ALobbyGameState::GetLobbyStage()
+{
+	return LobbyStage;
+}
+
 void ALobbyGameState::SetAvailableCharacters(TArray<FName> InavailableCharacters)
 {
 	AvailableCharacters = InavailableCharacters;
@@ -75,7 +80,7 @@ void ALobbyGameState::OnPlayerToggleReady(bool bReady)
 	for (auto Player : PlayerArray)
 	{
 		auto LobbyPlayerState = Cast<ALobbyPlayerState>(Player);
-		if (LobbyPlayerState && !LobbyPlayerState->bReady)
+		if (LobbyPlayerState && !LobbyPlayerState->GetReadyState())
 		{
 			bAllPlayersReady = false;
 			break;

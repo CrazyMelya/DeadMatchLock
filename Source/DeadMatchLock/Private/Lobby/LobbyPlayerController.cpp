@@ -43,7 +43,8 @@ void ALobbyPlayerController::LeaveLobby_Implementation()
 	}
 	else
 	{
-		BP_LeaveLobby();
+		ClientTravel("/Game/Maps/MainMenu", TRAVEL_Absolute);
+		// BP_LeaveLobby();
 	}
 }
 
@@ -61,6 +62,8 @@ void ALobbyPlayerController::BeginPlay()
 			LobbyUI->OnCharacterSelected.AddDynamic(this, &ALobbyPlayerController::PickCharacter);
 			LobbyUI->AddToViewport();
 			LobbyUI->SetGameState(GetWorld()->GetGameState<ALobbyGameState>());
+			if (LobbyPlayerState)
+				LobbyUI->BindOnCharacterSelected(LobbyPlayerState);
 		}
 	}
 	Super::BeginPlay();
@@ -71,6 +74,12 @@ void ALobbyPlayerController::SetGameMode(ALobbyGameMode* InGameMode)
 	LobbyGameMode = InGameMode;
 }
 
+void ALobbyPlayerController::OnRep_LobbyPlayerState()
+{
+	if (LobbyPlayerState && LobbyUI)
+		LobbyUI->BindOnCharacterSelected(LobbyPlayerState);
+}
+
 void ALobbyPlayerController::StartGame_Implementation()
 {
 	LobbyGameMode->StartSelectionStage();
@@ -78,7 +87,7 @@ void ALobbyPlayerController::StartGame_Implementation()
 
 void ALobbyPlayerController::PickCharacter_Implementation(const FName& CharacterName)
 {
-	LobbyGameMode->PickCharacter(this, CharacterName);
+	LobbyGameMode->PickCharacter(LobbyPlayerState, CharacterName);
 }
 
 void ALobbyPlayerController::ToggleReadyState_Implementation()

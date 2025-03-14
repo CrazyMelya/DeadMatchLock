@@ -23,10 +23,10 @@ public:
 	void CloseLobby();
 
 	UFUNCTION()
-	void PickCharacter(ALobbyPlayerController* PickingPlayer, const FName& CharacterName);
+	void PickCharacter(ALobbyPlayerState* PickingPlayer, const FName& CharacterName);
 
 	UFUNCTION()
-	void PickRandomCharacter(ALobbyPlayerController* PickingPlayer);
+	void PickRandomCharacter(ALobbyPlayerState* PickingPlayer);
 
 	UPROPERTY()
 	class ALobbyGameState* LobbyGameState;

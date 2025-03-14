@@ -47,9 +47,12 @@ public:
 	UFUNCTION()
 	void SetGameMode(ALobbyGameMode* InGameMode);
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_LobbyPlayerState)
 	ALobbyPlayerState* LobbyPlayerState;
 
+	UFUNCTION()
+	void OnRep_LobbyPlayerState();
+	
 	UFUNCTION(Server, Reliable)
 	void StartGame();
 
@@ -62,4 +65,5 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void PickCharacter(const FName& CharacterName);
+	
 };

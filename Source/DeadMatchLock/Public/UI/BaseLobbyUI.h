@@ -31,6 +31,9 @@ public:
 	UPROPERTY(BlueprintCallable)
 	FDynamicOnCharacterSelected OnCharacterSelected;
 
+	UFUNCTION()
+	void BindOnCharacterSelected(ALobbyPlayerState* PlayerState);
+
 private:
 	UPROPERTY()
 	ALobbyPlayerController* PlayerController;
@@ -59,6 +62,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnAllReadyChanged")
 	void BP_OnAllReadyChanged(bool bAllReady);
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName="OnCharacterSelected")
+	void BP_OnCharacterSelected(const FName& CharacterName);
 	
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FName> AvailableCharacters;

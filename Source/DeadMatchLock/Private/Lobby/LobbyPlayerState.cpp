@@ -25,30 +25,29 @@ void ALobbyPlayerState::CopyProperties(APlayerState* PlayerState)
 	}
 }
 
-void ALobbyPlayerState::ToggleReadyState()
+void ALobbyPlayerState::ToggleReadyState_Implementation()
 {
-	bReady = !bReady;
-	OnRep_Ready();
+	SetReadyState(!bReady);
 }
 
-void ALobbyPlayerState::SetReadyState(bool InReady)
+void ALobbyPlayerState::SetReadyState_Implementation(bool InReady)
 {
 	bReady = InReady;
-	OnRep_Ready();
-}
-
-void ALobbyPlayerState::OnRep_Ready()
-{
 	OnReadyStateChanged.Broadcast(bReady);
 }
 
-void ALobbyPlayerState::OnRep_CharacterName()
+bool ALobbyPlayerState::CharacterSelected()
 {
-	OnCharacterSelected.Broadcast(CharacterName);
+	return !CharacterName.IsNone();
 }
 
-void ALobbyPlayerState::SetCharacterName(const FName& InCharacterName)
+bool ALobbyPlayerState::GetReadyState()
+{
+	return bReady;
+}
+
+void ALobbyPlayerState::SetCharacterName_Implementation(const FName& InCharacterName)
 {
 	CharacterName = InCharacterName;
-	OnRep_CharacterName();
+	OnCharacterSelected.Broadcast(CharacterName);
 }

@@ -5,12 +5,19 @@
 
 #include "Lobby/LobbyGameState.h"
 #include "Lobby/LobbyPlayerController.h"
+#include "Lobby/LobbyPlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 void UBaseLobbyUI::SetGameState(ALobbyGameState* InGameState)
 {
 	GameState = InGameState;
 	OnRep_GameState();
+}
+
+void UBaseLobbyUI::BindOnCharacterSelected(ALobbyPlayerState* PlayerState)
+{
+	if (PlayerState)
+		PlayerState->OnCharacterSelected.AddUObject(this, &ThisClass::BP_OnCharacterSelected);
 }
 
 void UBaseLobbyUI::ToggleReadyState()
@@ -30,9 +37,9 @@ void UBaseLobbyUI::StartGame()
 
 void UBaseLobbyUI::OnRep_GameState()
 {
-	OnAllReadyChangedDelegateHandle = GameState->OnAvailableCharactersChanged.AddUObject(this, &UBaseLobbyUI::BP_OnAvailableCharactersChanged);
-	OnLobbyStageChangedDelegateHandle = GameState->OnLobbyStageChanged.AddUObject(this, &UBaseLobbyUI::BP_OnLobbyStageChanged);
-	OnAllReadyChangedDelegateHandle = GameState->OnAllReadyChanged.AddUObject(this, &UBaseLobbyUI::BP_OnAllReadyChanged);
+	OnAllReadyChangedDelegateHandle = GameState->OnAvailableCharactersChanged.AddUObject(this, &ThisClass::BP_OnAvailableCharactersChanged);
+	OnLobbyStageChangedDelegateHandle = GameState->OnLobbyStageChanged.AddUObject(this, &ThisClass::BP_OnLobbyStageChanged);
+	OnAllReadyChangedDelegateHandle = GameState->OnAllReadyChanged.AddUObject(this, &ThisClass::BP_OnAllReadyChanged);
 	AvailableCharacters = GameState->GetAvailableCharacters();
 }
 

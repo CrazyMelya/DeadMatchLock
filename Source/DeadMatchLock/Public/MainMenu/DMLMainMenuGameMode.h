@@ -16,6 +16,4 @@ class DEADMATCHLOCK_API ADMLMainMenuGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	ADMLMainMenuGameMode(const FObjectInitializer& ObjectInitializer);
-
-	virtual void GetSeamlessTravelActorList(bool bToTransition, TArray<AActor*>& ActorList) override;
 };

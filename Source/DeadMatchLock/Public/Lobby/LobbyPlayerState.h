@@ -17,33 +17,33 @@ UCLASS()
 class DEADMATCHLOCK_API ALobbyPlayerState : public APlayerState
 {
 	GENERATED_BODY()
-
-protected:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void CopyProperties(APlayerState* PlayerState) override;
 	
 public:
-	UFUNCTION()
+	UFUNCTION(NetMulticast, Reliable)
 	void ToggleReadyState();
 
-	UFUNCTION()
-	void SetReadyState(bool bReady);
+	UFUNCTION(NetMulticast, Reliable)
+	void SetReadyState(bool InReady);
 
-	UFUNCTION()
+	UFUNCTION(NetMulticast, Reliable)
 	void SetCharacterName(const FName& InCharacterName);
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lobby State", ReplicatedUsing=OnRep_Ready)
-	bool bReady = false;
 
 	UFUNCTION()
-	void OnRep_Ready();
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lobby State", ReplicatedUsing=OnRep_CharacterName)
-	FName CharacterName;
+	bool CharacterSelected();
 
 	UFUNCTION()
-	void OnRep_CharacterName();
+	bool GetReadyState();
 
 	FOnReadyStateChanged OnReadyStateChanged;
 	FOnCharacterSelected OnCharacterSelected;
+	
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void CopyProperties(APlayerState* PlayerState) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lobby State", Replicated)
+	bool bReady = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lobby State", Replicated)
+	FName CharacterName;
 };
