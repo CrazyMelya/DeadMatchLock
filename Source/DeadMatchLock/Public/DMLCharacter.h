@@ -77,12 +77,10 @@ protected:
 	TSubclassOf<UGameplayEffect> InitEffectClass;
 
 	virtual void PostInitializeComponents() override;
-	
-	void OnHealthChanged(const FOnAttributeChangeData& Data);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Base")
-	void Die();
-	virtual void Die_Implementation();
+	void Die(AActor* Killer);
+	virtual void Die_Implementation(AActor* Killer);
 
 	UFUNCTION(Client, Reliable)
 	void Die_Client();

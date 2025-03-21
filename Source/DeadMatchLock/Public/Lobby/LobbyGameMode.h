@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LobbyPlayerPlatform.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "LobbyGameMode.generated.h"
 
 /**
@@ -12,7 +12,7 @@
  */
 
 UCLASS()
-class DEADMATCHLOCK_API ALobbyGameMode : public AGameModeBase
+class DEADMATCHLOCK_API ALobbyGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
@@ -40,6 +40,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 	virtual void InitGameState() override;
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ALobbyPlayerPlatform*> Platforms;

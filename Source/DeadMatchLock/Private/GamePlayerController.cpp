@@ -25,6 +25,12 @@ void AGamePlayerController::OnRep_Pawn()
 		UpdateTargetCharacterToHUD();
 }
 
+void AGamePlayerController::RefreshGameStats_Implementation()
+{
+	if (HUD)
+		HUD->BP_RefreshGameStats();
+}
+
 void AGamePlayerController::ToggleMenu()
 {
 	if (!Menu) return;
@@ -82,7 +88,9 @@ void AGamePlayerController::CreateWidgets_Implementation()
 	{
 		HUD = CreateWidget<UDMLBaseHUD>(this, HUDClass, FName("HUD"));
 		if (HUD)
+		{
 			HUD->AddToViewport();
+		}
 	}
 	if (!Menu)
 	{

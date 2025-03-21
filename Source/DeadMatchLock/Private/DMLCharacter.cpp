@@ -71,11 +71,6 @@ void ADMLCharacter::BeginPlay()
 {
 	// Call the base class 
 	Super::BeginPlay();
-	
-	if (HasAuthority())
-	{
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCharactersAttributeSet::GetHealthAttribute()).AddUObject(this, &ADMLCharacter::OnHealthChanged);;
-	}
 }
 
 void ADMLCharacter::PostInitializeComponents()
@@ -84,15 +79,12 @@ void ADMLCharacter::PostInitializeComponents()
 
 	if (AbilitySystemComponent)
 	{
-		// Создаем атрибуты только на сервере
 		if (HasAuthority())
 		{
-			// Создание объекта UCharactersAttributeSet
-			UCharactersAttributeSet* Attributes = NewObject<UCharactersAttributeSet>(this, UCharactersAttributeSet::StaticClass());
-			if (Attributes)
+			if (UCharactersAttributeSet* Attributes = NewObject<UCharactersAttributeSet>(this, UCharactersAttributeSet::StaticClass()))
 			{
-				// Добавляем атрибуты в AbilitySystemComponent
 				AbilitySystemComponent->AddSpawnedAttribute(Attributes);
+				Attributes->OnOutOfHealth.AddUObject(this, &ThisClass::Die);
 			}
 			auto InitEffect = InitEffectClass->GetDefaultObject<UGameplayEffect>();
 			AbilitySystemComponent->ApplyGameplayEffectToSelf(InitEffect, 0, AbilitySystemComponent->MakeEffectContext());
@@ -100,13 +92,7 @@ void ADMLCharacter::PostInitializeComponents()
 	}
 }
 
-void ADMLCharacter::OnHealthChanged(const FOnAttributeChangeData& Data)
-{
-	if (Data.NewValue <= 0.0f)
-		Die();
-}
-
-void ADMLCharacter::Die_Implementation()
+void ADMLCharacter::Die_Implementation(AActor* Killer)
 {
 	if (HasAuthority())
 	{
@@ -118,10 +104,9 @@ void ADMLCharacter::Die_Implementation()
 		}
 		Die_Client();
 		Die_Multicast();
-		ADMLGameMode* GameMode = GetWorld()->GetAuthGameMode<ADMLGameMode>();
-		if (GameMode)
+		if (ADMLGameMode* GameMode = GetWorld()->GetAuthGameMode<ADMLGameMode>())
 		{
-			GameMode->NotifyPlayerDeath(PlayerController);
+			GameMode->NotifyPlayerDeath(PlayerController, Killer);
 		}
 	}
 }

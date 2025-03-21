@@ -4,6 +4,7 @@
 #include "AbilitySystem/CharactersAttributeSet.h"
 
 #include "AbilitySystem/DMLAbilitySystemComponent.h"
+#include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
 UCharactersAttributeSet::UCharactersAttributeSet()
@@ -87,6 +88,7 @@ void UCharactersAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeP
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Health, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxHealth, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, HealthRegen, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Ammo, COND_None, REPNOTIFY_OnChanged)
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxAmmo, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Stamina, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxStamina, COND_None, REPNOTIFY_OnChanged);
@@ -114,6 +116,18 @@ void UCharactersAttributeSet::PostAttributeChange(const FGameplayAttribute& Attr
 	if (OldValue == NewValue) return;
 	
 	auto AbilitySystem = Cast<UDMLAbilitySystemComponent>(GetOwningAbilitySystemComponent());
-	 (AbilitySystem->GetNetMode() == NM_Client);
-		AbilitySystem->OnAttributeValueChanged.Broadcast(Attribute, OldValue, NewValue);
+	AbilitySystem->OnAttributeValueChanged.Broadcast(Attribute, OldValue, NewValue);
+}
+
+void UCharactersAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+	
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		if (GetHealth() <= GetAttributeMinValue(GetHealthAttribute()))
+		{
+			OnOutOfHealth.Broadcast(Data.EffectSpec.GetEffectContext().GetEffectCauser());
+		}
+	}
 }

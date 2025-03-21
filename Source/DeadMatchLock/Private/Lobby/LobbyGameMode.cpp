@@ -3,7 +3,7 @@
 
 #include "Lobby/LobbyGameMode.h"
 
-#include "DMLPlayerState.h"
+#include "DMLGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Lobby/LobbyGameState.h"
 #include "Lobby/LobbyPlayerController.h"
@@ -45,7 +45,7 @@ void ALobbyGameMode::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);
 
-	OnNewPlayerConnected(Cast<ALobbyPlayerController>(NewPlayer));
+	// OnNewPlayerConnected(Cast<ALobbyPlayerController>(NewPlayer));
 }
 
 void ALobbyGameMode::Logout(AController* Exiting)
@@ -76,7 +76,7 @@ void ALobbyGameMode::HandleSeamlessTravelPlayer(AController*& C)
 {
 	Super::HandleSeamlessTravelPlayer(C);
 
-	OnNewPlayerConnected(Cast<ALobbyPlayerController>(C));
+	// OnNewPlayerConnected(Cast<ALobbyPlayerController>(C));
 }
 
 void ALobbyGameMode::InitGameState()
@@ -84,6 +84,12 @@ void ALobbyGameMode::InitGameState()
 	Super::InitGameState();
 
 	LobbyGameState = Cast<ALobbyGameState>(GameState);
+}
+
+void ALobbyGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	OnNewPlayerConnected(Cast<ALobbyPlayerController>(NewPlayer));
 }
 
 void ALobbyGameMode::SetupFirstPlayers()
@@ -170,10 +176,15 @@ void ALobbyGameMode::SelectCharacterTimerTick()
 
 void ALobbyGameMode::EndSelectionStage()
 {
+	if (auto GameInstance = Cast<UDMLGameInstance>(GetWorld()->GetGameInstance()))
+	{
+		GameInstance->SetPlayersNum(LobbyGameState->PlayerArray.Num());
+	}
 	PickRandomCharacters();
 	LobbyGameState->SetLobbyStage(FinalCountdown);
 	LobbyGameState->RemainingTime = 10;
 	GetWorld()->GetTimerManager().SetTimer(Timer, this, &ALobbyGameMode::FinalCountdownTick, 1.0f, true);
+	
 }
 
 void ALobbyGameMode::PickRandomCharacters()

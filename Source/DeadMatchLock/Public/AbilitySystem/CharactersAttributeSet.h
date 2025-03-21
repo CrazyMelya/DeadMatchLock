@@ -36,7 +36,7 @@ MaxLimitsMap.Add(Get##PropertyName##Attribute(), GetMax##PropertyName##Attribute
 #define INIT_MIN_MAPS(PropertyName) \
 MinLimitsMap.Add(Get##PropertyName##Attribute(), GetMin##PropertyName##Attribute());
 
-
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnOutOfHealth, AActor*)
 
 UCLASS()
 class DEADMATCHLOCK_API UCharactersAttributeSet : public UAttributeSet
@@ -51,7 +51,6 @@ private:
 	TMap<FGameplayAttribute, FGameplayAttribute> MaxLimitsMap;
 
 public:
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(Health);
@@ -131,10 +130,12 @@ public:
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float &NewValue) override;
 	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 	float GetAttributeMaxValue(const FGameplayAttribute& Attribute) const;
 	float GetAttributeMinValue(const FGameplayAttribute& Attribute) const;
 
-	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+	FOnOutOfHealth OnOutOfHealth;
 };

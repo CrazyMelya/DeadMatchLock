@@ -3,9 +3,13 @@
 #include "DMLGameMode.h"
 
 #include "DMLCharacter.h"
+#include "DMLGameState.h"
 #include "GamePlayerController.h"
 #include "DMLPlayerState.h"
 #include "EngineUtils.h"
+#include "GameFramework/GameSession.h"
+#include "GameFramework/GameState.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerStart.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -19,19 +23,30 @@ ADMLGameMode::ADMLGameMode()
 	}
 	PlayerControllerClass = AGamePlayerController::StaticClass();
 	PlayerStateClass = ADMLPlayerState::StaticClass();
+	GameStateClass = ADMLGameState::StaticClass();
 }
 
-void ADMLGameMode::NotifyPlayerDeath(AGamePlayerController* Controller)
+void ADMLGameMode::NotifyPlayerDeath(AGamePlayerController* DeadPlayer, AActor* Killer)
 {
-	if (Controller)
+	if (Killer)
+	{
+		if (auto KillerController = Cast<AGamePlayerController>(Killer->GetOwner()))
+		{
+			if (auto PlayerState = Cast<ADMLPlayerState>(KillerController->PlayerState))
+			{
+				PlayerState->SetScore(PlayerState->GetScore() + 1);
+			}
+		}
+	}
+	if (DeadPlayer)
 	{
 		FTimerHandle RespawnTimer;
 		GetWorld()->GetTimerManager().SetTimer(
 			RespawnTimer,
-			FTimerDelegate::CreateUObject(this, &ADMLGameMode::RespawnPlayer, Controller),
+			FTimerDelegate::CreateUObject(this, &ADMLGameMode::RespawnPlayer, DeadPlayer),
 			5.0f,
 			false);
-		RespawnTimers.Add(Controller, RespawnTimer);
+		RespawnTimers.Add(DeadPlayer, RespawnTimer);
 	}
 }
 
@@ -104,4 +119,21 @@ APawn* ADMLGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, 
 		StartSpot->GetActorLocation(),
 		StartSpot->GetActorRotation()
 	);
+}
+
+void ADMLGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+}
+
+void ADMLGameMode::HandleSeamlessTravelPlayer(AController*& C)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("Travelling Players: %i"), NumTravellingPlayers);
+	// UE_LOG(LogTemp, Warning, TEXT("Players: %i"), NumPlayers);
+	Super::HandleSeamlessTravelPlayer(C);
+}
+
+void ADMLGameMode::BeginPlay()
+{
+	Super::BeginPlay();
 }

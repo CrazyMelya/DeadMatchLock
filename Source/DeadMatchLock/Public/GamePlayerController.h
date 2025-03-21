@@ -24,6 +24,9 @@ public:
 	UPROPERTY()
 	UUserWidget* Menu;
 
+	UFUNCTION(Client, Reliable)
+	void RefreshGameStats();
+
 	virtual void OnPossess(APawn* InPawn) override;
 
 protected:

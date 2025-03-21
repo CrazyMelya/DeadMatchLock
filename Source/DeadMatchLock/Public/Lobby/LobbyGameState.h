@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LobbyGameMode.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 #include "LobbyGameState.generated.h"
 
 UENUM(BlueprintType)
@@ -21,7 +21,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnRemainingTimeChanged, float)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAllReadyChanged, bool)
 
 UCLASS()
-class DEADMATCHLOCK_API ALobbyGameState : public AGameStateBase
+class DEADMATCHLOCK_API ALobbyGameState : public AGameState
 {
 	GENERATED_BODY()
 
@@ -51,6 +51,8 @@ public:
 
 	UPROPERTY()
 	ALobbyGameMode* GameMode;
+
+	
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing=OnRep_LobbyStage)

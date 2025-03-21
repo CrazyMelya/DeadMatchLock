@@ -59,6 +59,9 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Attributes", DisplayName = "OnMaxAmmoValueChanged")
 	void BP_OnMaxAmmoValueChanged(float OldValue, float NewValue);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stats", DisplayName = "RefreshGameStats")
+	void BP_RefreshGameStats();
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
