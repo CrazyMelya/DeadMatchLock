@@ -3,12 +3,11 @@
 #include "DMLGameMode.h"
 
 #include "DMLCharacter.h"
+#include "DMLGameInstance.h"
 #include "DMLGameState.h"
 #include "GamePlayerController.h"
 #include "DMLPlayerState.h"
 #include "EngineUtils.h"
-#include "GameFramework/GameSession.h"
-#include "GameFramework/GameState.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerStart.h"
 #include "UObject/ConstructorHelpers.h"
@@ -24,6 +23,7 @@ ADMLGameMode::ADMLGameMode()
 	PlayerControllerClass = AGamePlayerController::StaticClass();
 	PlayerStateClass = ADMLPlayerState::StaticClass();
 	GameStateClass = ADMLGameState::StaticClass();
+	bDelayedStart = true;
 }
 
 void ADMLGameMode::NotifyPlayerDeath(AGamePlayerController* DeadPlayer, AActor* Killer)
@@ -34,7 +34,7 @@ void ADMLGameMode::NotifyPlayerDeath(AGamePlayerController* DeadPlayer, AActor* 
 		{
 			if (auto PlayerState = Cast<ADMLPlayerState>(KillerController->PlayerState))
 			{
-				PlayerState->SetScore(PlayerState->GetScore() + 1);
+				PlayerState->SetPlayerScore(PlayerState->GetScore() + 1);
 			}
 		}
 	}
@@ -124,16 +124,39 @@ APawn* ADMLGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, 
 void ADMLGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
 	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	if (auto GameInstance = Cast<UDMLGameInstance>(GetWorld()->GetGameInstance()))
+	{
+		if (NumPlayers >= GameInstance->GetNumPlayers())
+		{
+			DMLGameState->GameTime = 10;
+			GetWorld()->GetTimerManager().SetTimer(StartMatchTimer, this, &ThisClass::StartMatchTimerTick, 1.0f, true);
+		}
+	}
 }
 
 void ADMLGameMode::HandleSeamlessTravelPlayer(AController*& C)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("Travelling Players: %i"), NumTravellingPlayers);
-	// UE_LOG(LogTemp, Warning, TEXT("Players: %i"), NumPlayers);
 	Super::HandleSeamlessTravelPlayer(C);
 }
 
 void ADMLGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ADMLGameMode::InitGameState()
+{
+	Super::InitGameState();
+
+	DMLGameState = Cast<ADMLGameState>(GameState);
+}
+
+void ADMLGameMode::StartMatchTimerTick()
+{
+	DMLGameState->GameTime--;
+	if (DMLGameState->GameTime <= 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StartMatchTimer);
+		StartMatch();
+	}
 }

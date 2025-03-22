@@ -6,6 +6,7 @@
 
 #include "DMLCharacter.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 
 void UDMLBaseHUD::SetTargetCharacter_Implementation(ADMLCharacter* NewTargetCharacter)
 {
@@ -28,6 +29,19 @@ void UDMLBaseHUD::SetTargetCharacter_Implementation(ADMLCharacter* NewTargetChar
 	}
 }
 
+void UDMLBaseHUD::SetGameState(ADMLGameState* InGameState)
+{
+	GameState = InGameState;
+	OnRep_GameState();
+}
+
+void UDMLBaseHUD::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, GameState);
+}
+
 void UDMLBaseHUD::OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 	auto Action = OnAttributeChangedActions.Find(Attribute.GetUProperty()->GetFName());
@@ -40,5 +54,9 @@ void UDMLBaseHUD::OnAbilityActivated_Implementation(UGameplayAbility* ActivatedA
 }
 
 void UDMLBaseHUD::OnAbilityEnded_Implementation(UGameplayAbility* EndedAbility)
+{
+}
+
+void UDMLBaseHUD::OnRep_GameState()
 {
 }

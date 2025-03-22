@@ -178,7 +178,7 @@ void ALobbyGameMode::EndSelectionStage()
 {
 	if (auto GameInstance = Cast<UDMLGameInstance>(GetWorld()->GetGameInstance()))
 	{
-		GameInstance->SetPlayersNum(LobbyGameState->PlayerArray.Num());
+		GameInstance->SetNumPlayers(LobbyGameState->PlayerArray.Num());
 	}
 	PickRandomCharacters();
 	LobbyGameState->SetLobbyStage(FinalCountdown);

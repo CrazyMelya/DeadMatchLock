@@ -10,7 +10,7 @@
 
 void AGamePlayerController::OnPossess(APawn* InPawn)
 {
-	CreateWidgets();
+	// CreateWidgets();
 	
 	Super::OnPossess(InPawn);
 
@@ -53,6 +53,8 @@ void AGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CreateWidgets();
+
 	// Add Input Mapping Context
 	if (APlayerController* PC = Cast<APlayerController>(this))
 	{
@@ -90,6 +92,7 @@ void AGamePlayerController::CreateWidgets_Implementation()
 		if (HUD)
 		{
 			HUD->AddToViewport();
+			HUD->SetGameState(Cast<ADMLGameState>(GetWorld()->GetGameState()));
 		}
 	}
 	if (!Menu)

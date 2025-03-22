@@ -5,11 +5,11 @@
 
 #include "GamePlayerController.h"
 #include "GameFramework/PlayerState.h"
+#include "Net/UnrealNetwork.h"
 
-void ADMLGameState::AddPlayerState(APlayerState* PlayerState)
+void ADMLGameState::HandleMatchHasStarted()
 {
-	Super::AddPlayerState(PlayerState);
-
+	Super::HandleMatchHasStarted();
 	for (auto Player : PlayerArray)
 	{
 		if (auto Controller = Cast<AGamePlayerController>(Player->GetOwner()))
@@ -17,4 +17,16 @@ void ADMLGameState::AddPlayerState(APlayerState* PlayerState)
 			Controller->RefreshGameStats();
 		}
 	}
+}
+
+void ADMLGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, GameTime);
+}
+
+void ADMLGameState::OnRep_GameTime()
+{
+	OnGameTimeChanged.Broadcast(GameTime);
 }

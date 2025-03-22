@@ -15,12 +15,12 @@ class DEADMATCHLOCK_API UDMLGameInstance : public UAdvancedFriendsGameInstance
 
 public:
 	UFUNCTION()
-	void SetPlayersNum(int32 InPlayersNum) { PlayersNum = InPlayersNum; };
+	void SetNumPlayers(int32 InPlayersNum) { NumPlayers = InPlayersNum; };
 	
 	UFUNCTION()
-	int32 GetPlayersNum() const { return PlayersNum; };
+	int32 GetNumPlayers() const { return NumPlayers; };
 
 private:
 	UPROPERTY()
-	int32 PlayersNum = 0;
+	int32 NumPlayers = 0;
 };

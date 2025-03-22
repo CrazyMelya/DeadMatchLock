@@ -24,13 +24,22 @@ protected:
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 	virtual void BeginPlay() override;
+	virtual void InitGameState() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gameplay")
 	UDataTable* Characters;
 
+	ADMLGameState* DMLGameState;
+
 private:
 	UPROPERTY()
 	TMap<AGamePlayerController*, FTimerHandle> RespawnTimers;
+
+	UPROPERTY()
+	FTimerHandle StartMatchTimer;
+
+	UFUNCTION()
+	void StartMatchTimerTick();
 };
 
 

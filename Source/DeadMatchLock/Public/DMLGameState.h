@@ -9,12 +9,23 @@
 /**
  * 
  */
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameTimeChanged, float)
+
 UCLASS()
 class DEADMATCHLOCK_API ADMLGameState : public AGameState
 {
 	GENERATED_BODY()
 	
+	virtual void HandleMatchHasStarted() override;
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	virtual void AddPlayerState(APlayerState* PlayerState) override;
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_GameTime)
+	float GameTime;
+
+	UFUNCTION()
+	void OnRep_GameTime();
 	
+	FOnGameTimeChanged OnGameTimeChanged;
 };

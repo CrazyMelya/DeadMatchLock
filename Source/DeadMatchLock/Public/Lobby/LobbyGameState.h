@@ -41,7 +41,7 @@ public:
 	UFUNCTION()
 	TArray<FName> GetAvailableCharacters();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing=OnRep_RemainingTime)
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_RemainingTime)
 	float RemainingTime;
 	
 	FOnLobbyStageChanged OnLobbyStageChanged;
@@ -51,8 +51,6 @@ public:
 
 	UPROPERTY()
 	ALobbyGameMode* GameMode;
-
-	
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing=OnRep_LobbyStage)

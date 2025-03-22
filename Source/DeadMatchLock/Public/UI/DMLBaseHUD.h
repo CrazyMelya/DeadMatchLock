@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
+#include "DMLGameState.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "Blueprint/UserWidget.h"
 #include "DMLBaseHUD.generated.h"
@@ -62,8 +63,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stats", DisplayName = "RefreshGameStats")
 	void BP_RefreshGameStats();
+
+	void SetGameState(ADMLGameState* InGameState);
 	
 protected:
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ADMLCharacter* TargetCharacter;
 
@@ -85,4 +90,10 @@ protected:
 	DECLARE_ATTRIBUTE_CHANGED_FUNC(MaxStamina);
 	DECLARE_ATTRIBUTE_CHANGED_FUNC(Ammo);
 	DECLARE_ATTRIBUTE_CHANGED_FUNC(MaxAmmo);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_GameState)
+	ADMLGameState* GameState;
+
+	UFUNCTION()
+	void OnRep_GameState();
 };
