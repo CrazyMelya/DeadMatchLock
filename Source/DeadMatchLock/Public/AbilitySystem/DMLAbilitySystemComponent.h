@@ -68,5 +68,4 @@ public:
 	FOnEffectRemoved OnEffectRemoved;
 
 	void OnEffectRemovedCallback(const FActiveGameplayEffect& RemovedGameplayEffect);
-	
 };

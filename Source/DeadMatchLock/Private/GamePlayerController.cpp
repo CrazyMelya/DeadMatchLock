@@ -25,10 +25,19 @@ void AGamePlayerController::OnRep_Pawn()
 		UpdateTargetCharacterToHUD();
 }
 
-void AGamePlayerController::RefreshGameStats_Implementation()
+void AGamePlayerController::OnMatchStarted_Implementation()
 {
 	if (HUD)
-		HUD->BP_RefreshGameStats();
+		HUD->BP_OnMatchStarted();
+}
+
+void AGamePlayerController::OnMatchEnded_Implementation()
+{
+	if (HUD)
+		HUD->BP_OnMatchEnded();
+	if (GetPawn())
+		GetPawn()->DisableInput(this);
+	SetInputMode(FInputModeUIOnly());
 }
 
 void AGamePlayerController::ToggleMenu()

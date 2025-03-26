@@ -71,6 +71,8 @@ void ADMLCharacter::BeginPlay()
 {
 	// Call the base class 
 	Super::BeginPlay();
+
+	
 }
 
 void ADMLCharacter::PostInitializeComponents()
@@ -88,7 +90,31 @@ void ADMLCharacter::PostInitializeComponents()
 			}
 			auto InitEffect = InitEffectClass->GetDefaultObject<UGameplayEffect>();
 			AbilitySystemComponent->ApplyGameplayEffectToSelf(InitEffect, 0, AbilitySystemComponent->MakeEffectContext());
+			AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(TAG_STUNNED), EGameplayTagEventType::NewOrRemoved)
+				.AddUObject(this, &ThisClass::OnStunnedTagChanged);
+			AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ThisClass::OnEffectRemoved);
 		}
+	}
+}
+
+void ADMLCharacter::OnStunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		DisableInput(Cast<APlayerController>(GetController()));
+	}
+	else
+	{
+		EnableInput(Cast<APlayerController>(GetController()));
+	}
+}
+
+void ADMLCharacter::OnEffectRemoved(const FActiveGameplayEffect& Effect)
+{
+	if (Effect.Spec.Def->GetGrantedTags().HasTag(FGameplayTag::RequestGameplayTag(TAG_STUNNED)) &&
+		AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TAG_NEEDRELOAD)))
+	{
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TAG_RELOAD))), true);
 	}
 }
 

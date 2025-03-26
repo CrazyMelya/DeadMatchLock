@@ -11,21 +11,37 @@
  */
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameTimeChanged, float)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayersSorted);
 
 UCLASS()
 class DEADMATCHLOCK_API ADMLGameState : public AGameState
 {
 	GENERATED_BODY()
-	
-	virtual void HandleMatchHasStarted() override;
+
 public:
+	virtual void HandleMatchHasStarted() override;
+	virtual void HandleMatchHasEnded() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
 	
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_GameTime)
-	float GameTime;
+	int32 GameTime;
 
 	UFUNCTION()
 	void OnRep_GameTime();
+
+	UFUNCTION()
+	void SortPlayerArray();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayersSorted OnPlayersSorted;
 	
 	FOnGameTimeChanged OnGameTimeChanged;
+
+	UPROPERTY(Transient, BlueprintReadOnly, Category=GameState)
+	TArray<TObjectPtr<class ADMLPlayerState>> DMLPlayerArray;
+
+private:
+	UFUNCTION()
+	void OnPlayerKillsChanged(int32 NewKills);
 };

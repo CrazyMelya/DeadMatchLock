@@ -61,11 +61,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Attributes", DisplayName = "OnMaxAmmoValueChanged")
 	void BP_OnMaxAmmoValueChanged(float OldValue, float NewValue);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stats", DisplayName = "RefreshGameStats")
-	void BP_RefreshGameStats();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stats", DisplayName = "OnMatchStarted")
+	void BP_OnMatchStarted();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stats", DisplayName = "OnMatchEnded")
+	void BP_OnMatchEnded();
 
 	void SetGameState(ADMLGameState* InGameState);
-	
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	

@@ -25,7 +25,10 @@ public:
 	UUserWidget* Menu;
 
 	UFUNCTION(Client, Reliable)
-	void RefreshGameStats();
+	void OnMatchStarted();
+
+	UFUNCTION(Client, Reliable)
+	void OnMatchEnded();
 
 	virtual void OnPossess(APawn* InPawn) override;
 

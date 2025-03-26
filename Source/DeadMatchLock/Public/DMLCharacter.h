@@ -88,6 +88,12 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void Die_Multicast();
 
+	UFUNCTION()
+	void OnStunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UFUNCTION()
+	void OnEffectRemoved(const FActiveGameplayEffect& Effect);
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

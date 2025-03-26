@@ -9,12 +9,32 @@ void ADMLPlayerState::OnRep_Score()
 	Super::OnRep_Score();
 
 	OnScoreChanged.Broadcast(GetScore());
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("OnRep_Score"));
 }
 
-void ADMLPlayerState::SetPlayerScore(float InScore)
+void ADMLPlayerState::SetKills_Implementation(int32 NewKills)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("SetPlayerScore"));
+	Kills = NewKills;
+	OnRep_Kills();
+}
+
+void ADMLPlayerState::OnRep_Kills()
+{
+	OnKillsChanged.Broadcast(Kills);
+}
+
+void ADMLPlayerState::SetDeaths_Implementation(int32 NewDeaths)
+{
+	Deaths = NewDeaths;
+	OnRep_Deaths();
+}
+
+void ADMLPlayerState::OnRep_Deaths()
+{
+	OnDeathsChanged.Broadcast(Deaths);
+}
+
+void ADMLPlayerState::SetPlayerScore_Implementation(float InScore)
+{
 	SetScore(InScore);
 	OnRep_Score();
 }
@@ -23,5 +43,7 @@ void ADMLPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
-	DOREPLIFETIME(ThisClass, CharacterName);
+	DOREPLIFETIME_CONDITION_NOTIFY (ThisClass, CharacterName, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY (ThisClass, Kills, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY (ThisClass, Deaths, COND_None, REPNOTIFY_OnChanged);
 }

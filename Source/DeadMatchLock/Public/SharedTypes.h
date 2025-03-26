@@ -6,6 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "SharedTypes.generated.h"
 
+#define TAG_STUNNED "Status.Stunned"
+#define TAG_NEEDRELOAD "Status.NeedReload"
+#define TAG_RELOAD "Ability.Channeling.Reload"
+
 class UUserWidget;
 
 UENUM(Blueprinttype)

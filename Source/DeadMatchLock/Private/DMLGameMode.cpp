@@ -28,25 +28,31 @@ ADMLGameMode::ADMLGameMode()
 
 void ADMLGameMode::NotifyPlayerDeath(AGamePlayerController* DeadPlayer, AActor* Killer)
 {
+	if (DeadPlayer)
+	{
+		if (auto PlayerState = Cast<ADMLPlayerState>(DeadPlayer->PlayerState))
+		{
+			PlayerState->SetDeaths(PlayerState->Deaths + 1);
+		}
+		FTimerHandle RespawnTimer;
+		GetWorld()->GetTimerManager().SetTimer(
+			RespawnTimer,
+			FTimerDelegate::CreateUObject(this, &ThisClass::RespawnPlayer, DeadPlayer),
+			5.0f,
+			false);
+		RespawnTimers.Add(DeadPlayer, RespawnTimer);
+	}
 	if (Killer)
 	{
 		if (auto KillerController = Cast<AGamePlayerController>(Killer->GetOwner()))
 		{
 			if (auto PlayerState = Cast<ADMLPlayerState>(KillerController->PlayerState))
 			{
-				PlayerState->SetPlayerScore(PlayerState->GetScore() + 1);
+				PlayerState->SetKills(PlayerState->Kills + 1);
+				if (PlayerState->Kills >= KillsToWin)
+					EndMatch();
 			}
 		}
-	}
-	if (DeadPlayer)
-	{
-		FTimerHandle RespawnTimer;
-		GetWorld()->GetTimerManager().SetTimer(
-			RespawnTimer,
-			FTimerDelegate::CreateUObject(this, &ADMLGameMode::RespawnPlayer, DeadPlayer),
-			5.0f,
-			false);
-		RespawnTimers.Add(DeadPlayer, RespawnTimer);
 	}
 }
 
@@ -98,8 +104,7 @@ AActor* ADMLGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		int32 RandomIndex = FMath::RandRange(0, PlayerStarts.Num() - 1);
 		return PlayerStarts[RandomIndex];
 	}
-
-	// Если точек спавна нет, используем стандартное поведение
+	
 	return Super::ChoosePlayerStart_Implementation(Player);
 }
 
@@ -129,7 +134,7 @@ void ADMLGameMode::HandleStartingNewPlayer_Implementation(APlayerController* New
 		if (NumPlayers >= GameInstance->GetNumPlayers())
 		{
 			DMLGameState->GameTime = 10;
-			GetWorld()->GetTimerManager().SetTimer(StartMatchTimer, this, &ThisClass::StartMatchTimerTick, 1.0f, true);
+			GetWorld()->GetTimerManager().SetTimer(GameTimer, this, &ThisClass::StartMatchTimerTick, 1.0f, true);
 		}
 	}
 }
@@ -151,12 +156,41 @@ void ADMLGameMode::InitGameState()
 	DMLGameState = Cast<ADMLGameState>(GameState);
 }
 
+void ADMLGameMode::HandleMatchHasEnded()
+{
+	Super::HandleMatchHasEnded();
+	GetWorld()->GetTimerManager().ClearTimer(GameTimer);
+	DMLGameState->GameTime = 40;
+	GetWorld()->GetTimerManager().SetTimer(GameTimer, this, &ThisClass::LeavingMapTimerTick, 1.0f, true);
+}
+
+void ADMLGameMode::HandleMatchHasStarted()
+{
+	Super::HandleMatchHasStarted();
+	DMLGameState->GameTime = 0;
+	GetWorld()->GetTimerManager().SetTimer(GameTimer, this, &ThisClass::GameTimerTick, 1.0f, true);
+}
+
 void ADMLGameMode::StartMatchTimerTick()
 {
 	DMLGameState->GameTime--;
 	if (DMLGameState->GameTime <= 0)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(StartMatchTimer);
+		GetWorld()->GetTimerManager().ClearTimer(GameTimer);
 		StartMatch();
+	}
+}
+
+void ADMLGameMode::GameTimerTick()
+{
+	DMLGameState->GameTime++;
+}
+
+void ADMLGameMode::LeavingMapTimerTick()
+{
+	DMLGameState->GameTime--;
+	if (DMLGameState->GameTime <= 0)
+	{
+		GetWorld()->ServerTravel("/Game/Maps/Lobby", TRAVEL_Absolute);
 	}
 }

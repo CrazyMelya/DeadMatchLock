@@ -4,7 +4,18 @@
 #include "AbilitySystem/DMLGameplayAbility_Reload.h"
 
 #include "AbilitySystemComponent.h"
+#include "SharedTypes.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
+
+void UDMLGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	// GetAbilitySystemComponentFromActorInfo()->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Status.Stun"), EGameplayTagEventType::NewOrRemoved)
+	// 	.AddUObject(this, &ThisClass::OnStunTagChanged);
+}
 
 void UDMLGameplayAbility_Reload::OnTimerCompleted_Implementation()
 {
@@ -26,4 +37,26 @@ bool UDMLGameplayAbility_Reload::CanActivateAbility(const FGameplayAbilitySpecHa
 	if (Ammo >= MaxAmmo)
 		return false;
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+}
+
+void UDMLGameplayAbility_Reload::OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	// if (NewCount > 0)
+	// {
+	// 	CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+	// }
+	// else if (CanActivateAbility(CurrentSpecHandle, CurrentActorInfo))
+	// if (NewCount <= 0)
+	// {
+	// 	ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
+	// }
+}
+
+void UDMLGameplayAbility_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilitySpec& Spec)
+{
+	Super::OnGiveAbility(ActorInfo, Spec);
+
+	GetAbilitySystemComponentFromActorInfo()->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(TAG_STUNNED), EGameplayTagEventType::NewOrRemoved)
+		.AddUObject(this, &ThisClass::OnStunTagChanged);
 }

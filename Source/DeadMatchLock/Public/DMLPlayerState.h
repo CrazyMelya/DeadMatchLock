@@ -12,6 +12,7 @@
  */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChanged, float, Score);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStatChanged, int, Stat);
 
 UCLASS()
 class DEADMATCHLOCK_API ADMLPlayerState : public APlayerState
@@ -25,11 +26,35 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnScoreChanged OnScoreChanged;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnStatChanged OnKillsChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStatChanged OnDeathsChanged;
+
 	virtual void OnRep_Score() override;
 
-	UFUNCTION(BlueprintCallable, DisplayName="Set Score")
+	UFUNCTION(NetMulticast, Reliable)
 	void SetPlayerScore(float InScore);
-	
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SetKills(int32 NewKills);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SetDeaths(int32 NewDeaths);
+
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing=OnRep_Kills)
+	int32 Kills;
+
+	UFUNCTION()
+	void OnRep_Kills();
+
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing=OnRep_Deaths)
+	int32 Deaths;
+
+	UFUNCTION()
+	void OnRep_Deaths();
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 };

@@ -25,21 +25,33 @@ protected:
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 	virtual void BeginPlay() override;
 	virtual void InitGameState() override;
+	virtual void HandleMatchHasEnded() override;
+	virtual void HandleMatchHasStarted() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gameplay")
 	UDataTable* Characters;
 
+	UPROPERTY()
 	ADMLGameState* DMLGameState;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gameplay")
+	int32 KillsToWin = 5;
 
 private:
 	UPROPERTY()
 	TMap<AGamePlayerController*, FTimerHandle> RespawnTimers;
 
 	UPROPERTY()
-	FTimerHandle StartMatchTimer;
+	FTimerHandle GameTimer;
 
 	UFUNCTION()
 	void StartMatchTimerTick();
+
+	UFUNCTION()
+	void GameTimerTick();
+
+	UFUNCTION()
+	void LeavingMapTimerTick();
 };
 
 

@@ -53,8 +53,9 @@ void UBaseLobbyUI::NativeDestruct()
 	Super::NativeDestruct();
 
 	GameState->OnAllReadyChanged.Remove(OnAllReadyChangedDelegateHandle);
-	GameState->OnAvailableCharactersChanged.Remove(OnAllReadyChangedDelegateHandle);
 	GameState->OnLobbyStageChanged.Remove(OnAllReadyChangedDelegateHandle);
+	if (OnAllReadyChangedDelegateHandle.IsValid())
+		GameState->OnAvailableCharactersChanged.Remove(OnAllReadyChangedDelegateHandle);
 }
 
 void UBaseLobbyUI::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
