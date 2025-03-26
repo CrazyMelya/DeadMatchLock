@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/DMLGameplayAbility_Reload.h"
+#include "AbilitySystem/GA_Reload.h"
 
 #include "AbilitySystemComponent.h"
 #include "SharedTypes.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 
-void UDMLGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
@@ -17,7 +17,7 @@ void UDMLGameplayAbility_Reload::ActivateAbility(const FGameplayAbilitySpecHandl
 	// 	.AddUObject(this, &ThisClass::OnStunTagChanged);
 }
 
-void UDMLGameplayAbility_Reload::OnTimerCompleted_Implementation()
+void UGA_Reload::OnTimerCompleted_Implementation()
 {
 	if (HasAuthority(&CurrentActivationInfo))
 	{
@@ -27,7 +27,7 @@ void UDMLGameplayAbility_Reload::OnTimerCompleted_Implementation()
 	}
 }
 
-bool UDMLGameplayAbility_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
 	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
@@ -39,7 +39,7 @@ bool UDMLGameplayAbility_Reload::CanActivateAbility(const FGameplayAbilitySpecHa
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
-void UDMLGameplayAbility_Reload::OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+void UGA_Reload::OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	// if (NewCount > 0)
 	// {
@@ -52,7 +52,7 @@ void UDMLGameplayAbility_Reload::OnStunTagChanged(const FGameplayTag CallbackTag
 	// }
 }
 
-void UDMLGameplayAbility_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
+void UGA_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);

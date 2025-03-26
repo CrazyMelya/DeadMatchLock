@@ -6,13 +6,13 @@
 #include "BaseBullet.h"
 #include "DMLCharacter.h"
 #include "AbilitySystem/DMLGameplayAbility.h"
-#include "DMLGameplayAbility_Fire.generated.h"
+#include "GA_Fire.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class DEADMATCHLOCK_API UDMLGameplayAbility_Fire : public UDMLGameplayAbility
+class DEADMATCHLOCK_API UGA_Fire : public UDMLGameplayAbility
 {
 	GENERATED_BODY()
 

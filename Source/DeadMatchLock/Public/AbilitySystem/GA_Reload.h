@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/DMLDurationGameplayAbility.h"
-#include "DMLGameplayAbility_Reload.generated.h"
+#include "GA_Reload.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADMATCHLOCK_API UDMLGameplayAbility_Reload : public UDMLDurationGameplayAbility
+class DEADMATCHLOCK_API UGA_Reload : public UDMLDurationGameplayAbility
 {
 	GENERATED_BODY()
 

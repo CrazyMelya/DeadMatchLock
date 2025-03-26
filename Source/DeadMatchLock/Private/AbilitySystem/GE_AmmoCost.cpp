@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GameplayEffect_AmmoCost.h"
+#include "AbilitySystem/GE_AmmoCost.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 
-UGameplayEffect_AmmoCost::UGameplayEffect_AmmoCost(const FObjectInitializer& ObjectInitializer)
+UGE_AmmoCost::UGE_AmmoCost(const FObjectInitializer& ObjectInitializer)
 {
 	FSetByCallerFloat Value;
 	Value.DataTag = FGameplayTag::RequestGameplayTag(FName("SetByCaller.Cost.Ammo"));

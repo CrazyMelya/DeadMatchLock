@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "DMLGameplayAbility.h"
-#include "DMLGameplayAbility_Jump.generated.h"
+#include "GA_Jump.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADMATCHLOCK_API UDMLGameplayAbility_Jump : public UDMLGameplayAbility
+class DEADMATCHLOCK_API UGA_Jump : public UDMLGameplayAbility
 {
 	GENERATED_BODY()
 
-	UDMLGameplayAbility_Jump(const FObjectInitializer& ObjectInitializer);
+	UGA_Jump(const FObjectInitializer& ObjectInitializer);
 	
 public:
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;

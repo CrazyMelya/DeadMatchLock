@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "DMLGameplayAbility.h"
-#include "DMLGameplayAbility_Dash.generated.h"
+#include "GA_Dash.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADMATCHLOCK_API UDMLGameplayAbility_Dash : public UDMLGameplayAbility
+class DEADMATCHLOCK_API UGA_Dash : public UDMLGameplayAbility
 {
 	GENERATED_BODY()
 
-	UDMLGameplayAbility_Dash(const FObjectInitializer& ObjectInitializer);
+	UGA_Dash(const FObjectInitializer& ObjectInitializer);
 
 public:
 	UFUNCTION(BlueprintImplementableEvent)

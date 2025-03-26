@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GameplayEffect_StaminaRegen.h"
+#include "AbilitySystem/GE_StaminaRegen.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 
-UGameplayEffect_StaminaRegen::UGameplayEffect_StaminaRegen(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UGE_StaminaRegen::UGE_StaminaRegen(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	DurationPolicy = EGameplayEffectDurationType::Infinite;
 	Period.Value = 0.2f;

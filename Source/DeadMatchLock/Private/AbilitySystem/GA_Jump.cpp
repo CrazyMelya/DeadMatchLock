@@ -1,25 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/DMLGameplayAbility_Jump.h"
+#include "AbilitySystem/GA_Jump.h"
 
 #include "DMLCharacter.h"
-#include "AbilitySystem/GameplayEffect_StaminaCost.h"
+#include "AbilitySystem/GE_StaminaCost.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionJumpForce.h"
-#include "AbilitySystem/GameplayEffect_AmmoCost.h"
+#include "AbilitySystem/GE_AmmoCost.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-UDMLGameplayAbility_Jump::UDMLGameplayAbility_Jump(const FObjectInitializer& ObjectInitializer)
+UGA_Jump::UGA_Jump(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	CostData.Add(FGameplayTag::RequestGameplayTag(FName("SetByCaller.Cost.Stamina")), -1.0f);
-	CostGameplayEffectClass = UGameplayEffect_StaminaCost::StaticClass();
+	CostGameplayEffectClass = UGE_StaminaCost::StaticClass();
 }
 
-void UDMLGameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UGA_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
@@ -41,7 +41,7 @@ void UDMLGameplayAbility_Jump::ActivateAbility(const FGameplayAbilitySpecHandle 
 	}
 }
 
-void UDMLGameplayAbility_Jump::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+void UGA_Jump::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	if (ActorInfo != nullptr && ActorInfo->AvatarActor != nullptr)
 	{
@@ -49,7 +49,7 @@ void UDMLGameplayAbility_Jump::InputReleased(const FGameplayAbilitySpecHandle Ha
 	}
 }
 
-bool UDMLGameplayAbility_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+bool UGA_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	const ADMLCharacter* Character = CastChecked<ADMLCharacter>(ActorInfo->AvatarActor.Get(), ECastCheckedType::NullAllowed);
 		
@@ -61,11 +61,11 @@ bool UDMLGameplayAbility_Jump::CanActivateAbility(const FGameplayAbilitySpecHand
 	return (Character && Character->CanJump());
 }
 
-void UDMLGameplayAbility_Jump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+void UGA_Jump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
 {
 	if (ScopeLockCount > 0)
 	{
-		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UDMLGameplayAbility_Jump::CancelAbility, Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility));
+		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGA_Jump::CancelAbility, Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility));
 		return;
 	}
 
@@ -75,7 +75,7 @@ void UDMLGameplayAbility_Jump::CancelAbility(const FGameplayAbilitySpecHandle Ha
 	Character->StopJumping();
 }
 
-bool UDMLGameplayAbility_Jump::CheckCost(const FGameplayAbilitySpecHandle Handle,
+bool UGA_Jump::CheckCost(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	const ADMLCharacter* Character = CastChecked<ADMLCharacter>(ActorInfo->AvatarActor.Get(), ECastCheckedType::NullAllowed);

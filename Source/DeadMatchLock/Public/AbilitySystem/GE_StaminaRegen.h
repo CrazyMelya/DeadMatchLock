@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
-#include "GameplayEffect_AmmoCost.generated.h"
+#include "GE_StaminaRegen.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADMATCHLOCK_API UGameplayEffect_AmmoCost : public UGameplayEffect
+class DEADMATCHLOCK_API UGE_StaminaRegen : public UGameplayEffect
 {
 	GENERATED_BODY()
 
-	UGameplayEffect_AmmoCost(const FObjectInitializer& ObjectInitializer);
+	UGE_StaminaRegen(const FObjectInitializer& ObjectInitializer);
 };
