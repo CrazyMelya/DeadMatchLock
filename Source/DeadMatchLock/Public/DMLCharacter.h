@@ -35,14 +35,6 @@ class ADMLCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveAction;
-
-	/** Look Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookAction;
-
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	UDMLAbilitySystemComponent* AbilitySystemComponent;
@@ -57,14 +49,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "Movement")
 	FVector2D GetMovementVector();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "Look")
+	FVector2D GetLookVector();
+
 protected:
-
-	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
-
-	/** Called for looking input */
-	void Look(const FInputActionValue& Value);
-
 	virtual void StartAbility(EAbilityInputID InputID);
 	virtual void EndAbility(EAbilityInputID InputID);
 

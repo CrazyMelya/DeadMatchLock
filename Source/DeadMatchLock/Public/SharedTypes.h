@@ -25,6 +25,7 @@ enum class EAbilityInputID : uint8
 	Fire UMETA(DisplayName = "Fire"),
 	Reload UMETA(DisplayName = "Reload"),
 	Move UMETA(DisplayName = "Move"),
+	Look UMETA(DisplayName = "Look"),
 };
 
 USTRUCT(BlueprintType)
