@@ -167,18 +167,15 @@ void ADMLCharacter::Die_Client_Implementation()
 
 void ADMLCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// Add Input Mapping Context
-	// if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	// {
-	// 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-	// 	{
-	// 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	// 	}
-	// }
-	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		// Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADMLCharacter::Move);
+
+		// Looking
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADMLCharacter::Look);
+		
 		if (AbilitySystemComponent->AbilityDataAsset)
 		{
 			auto InitAbilitiesData = AbilitySystemComponent->AbilityDataAsset->Abilities;
@@ -197,12 +194,6 @@ void ADMLCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 				}
 			}
 		}
-
-		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADMLCharacter::Move);
-
-		// Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ADMLCharacter::Look);
 	}
 	else
 	{
@@ -213,24 +204,25 @@ void ADMLCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 void ADMLCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
+	// MovementVector = Value.Get<FVector2D>();
+	// auto Result = AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag("Ability.Movement")));
+	// UE_LOG(LogTemp, Display, TEXT("MOVEMENT %s"), Result ? TEXT("true") : TEXT("false"));
+	// if (Controller != nullptr)
+	// {
+	// 	// find out which way is forward
+	// 	const FRotator Rotation = Controller->GetControlRotation();
+	// 	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	//
+	// 	// get forward vector
+	// 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	//
+	// 	// get right vector 
+	// 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	//
+	// 	// add movement 
+	// 	AddMovementInput(ForwardDirection, MovementVector.Y);
+	// 	AddMovementInput(RightDirection, MovementVector.X);
+	// }
 }
 
 void ADMLCharacter::Look(const FInputActionValue& Value)

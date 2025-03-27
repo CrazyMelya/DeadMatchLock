@@ -54,6 +54,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "Fire")
 	FVector GetFirePointLocation();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "Movement")
+	FVector2D GetMovementVector();
+
 protected:
 
 	/** Called for movement input */
@@ -100,5 +103,7 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+private:
+	FVector2D MovementVector;
 };
 
