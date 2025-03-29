@@ -13,8 +13,7 @@ void UDMLBaseHUD::SetTargetCharacter_Implementation(ADMLCharacter* NewTargetChar
 	if (NewTargetCharacter == nullptr || NewTargetCharacter == TargetCharacter) return;
 	
 	TargetCharacter = NewTargetCharacter;
-	auto AbilitySystem = Cast<UDMLAbilitySystemComponent>(TargetCharacter->GetAbilitySystemComponent());
-	if (AbilitySystem != nullptr)
+	if (auto AbilitySystem = Cast<UDMLAbilitySystemComponent>(TargetCharacter->GetAbilitySystemComponent()))
 	{
 		bool bFound;
 		BIND_ATTRIBUTE_VALUE_CHANGED(Health, AbilitySystem, bFound);

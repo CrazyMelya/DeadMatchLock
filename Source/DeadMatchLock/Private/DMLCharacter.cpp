@@ -15,6 +15,7 @@
 #include "InputActionValue.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "Binding/States/WidgetStateRegistration.h"
+#include "UI/PlayerInfo.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -60,6 +61,14 @@ ADMLCharacter::ADMLCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	AbilitySystemComponent = CreateDefaultSubobject<UDMLAbilitySystemComponent>("AbilitySystemComponent");
+
+	WC_PlayerInfo = CreateDefaultSubobject<UWidgetComponent>("PlayerInfo");
+	WC_PlayerInfo->SetupAttachment(GetCapsuleComponent());
+	WC_PlayerInfo->SetRelativeLocation(FVector(0.0f, 0.0f, 125.0f));
+	WC_PlayerInfo->bOwnerNoSee = true;
+	WC_PlayerInfo->SetDrawAtDesiredSize(false);
+	WC_PlayerInfo->SetDrawSize(FVector2D(100.0f, 20.0f));
+	WC_PlayerInfo->SetWidgetClass(UPlayerInfo::StaticClass());
 }
 
 UAbilitySystemComponent* ADMLCharacter::GetAbilitySystemComponent() const
@@ -72,7 +81,27 @@ void ADMLCharacter::BeginPlay()
 	// Call the base class 
 	Super::BeginPlay();
 
-	
+	PlayerInfo = Cast<UPlayerInfo>(WC_PlayerInfo->GetWidget());
+	if (PlayerInfo)
+	{
+		bool bFound;
+		PlayerInfo->SetHealth(AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetHealthAttribute(), bFound));
+		PlayerInfo->SetMaxHealth(AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetMaxHealthAttribute(), bFound));
+	}
+}
+
+void ADMLCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	APlayerCameraManager* CameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+	if (!CameraManager) return;
+
+	FVector CameraLocation = CameraManager->GetCameraLocation();
+	FVector WidgetLocation = WC_PlayerInfo->GetComponentLocation();
+
+	FRotator LookAtRotation = (CameraLocation - WidgetLocation).Rotation();
+	WC_PlayerInfo->SetWorldRotation(LookAtRotation);
 }
 
 void ADMLCharacter::PostInitializeComponents()
@@ -90,31 +119,37 @@ void ADMLCharacter::PostInitializeComponents()
 			}
 			auto InitEffect = InitEffectClass->GetDefaultObject<UGameplayEffect>();
 			AbilitySystemComponent->ApplyGameplayEffectToSelf(InitEffect, 0, AbilitySystemComponent->MakeEffectContext());
-			AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(TAG_STUNNED), EGameplayTagEventType::NewOrRemoved)
-				.AddUObject(this, &ThisClass::OnStunnedTagChanged);
 			AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ThisClass::OnEffectRemoved);
 		}
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCharactersAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &ThisClass::OnMaxHealthChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCharactersAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
 	}
 }
 
-void ADMLCharacter::OnStunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
-{
-	// if (NewCount > 0)
-	// {
-	// 	DisableInput(Cast<APlayerController>(GetController()));
-	// }
-	// else
-	// {
-	// 	EnableInput(Cast<APlayerController>(GetController()));
-	// }
-}
-
-void ADMLCharacter::OnEffectRemoved(const FActiveGameplayEffect& Effect)
+void ADMLCharacter::OnEffectRemoved(const FActiveGameplayEffect& Effect) const
 {
 	if (Effect.Spec.Def->GetGrantedTags().HasTag(FGameplayTag::RequestGameplayTag(TAG_STUNNED)) &&
 		AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TAG_NEEDRELOAD)))
 	{
 		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TAG_RELOAD))), true);
+	}
+}
+
+void ADMLCharacter::OnHealthChanged(const FOnAttributeChangeData& Data) const
+{
+	if (PlayerInfo)
+	{
+		bool bFound;
+		PlayerInfo->SetHealth(AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetHealthAttribute(), bFound));
+	}
+}
+
+void ADMLCharacter::OnMaxHealthChanged(const FOnAttributeChangeData& Data) const
+{
+	if (PlayerInfo)
+	{
+		bool bFound;
+		PlayerInfo->SetMaxHealth(AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetMaxHealthAttribute(), bFound));
 	}
 }
 

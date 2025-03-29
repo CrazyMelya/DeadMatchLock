@@ -8,6 +8,9 @@
 #include "AbilitySystemInterface.h"
 #include "SharedTypes.h"
 #include "AbilitySystem/DMLAbilitySystemComponent.h"
+#include "GameplayEffectTypes.h"
+#include "Components/WidgetComponent.h"
+#include "UI/PlayerInfo.h"
 #include "DMLCharacter.generated.h"
 
 class USpringArmComponent;
@@ -30,6 +33,9 @@ class ADMLCharacter : public ACharacter, public IAbilitySystemInterface
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* WC_PlayerInfo;
 	
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -64,6 +70,8 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	virtual void Tick(float DeltaTime) override;
+
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TSubclassOf<UGameplayEffect> InitEffectClass;
 
@@ -80,10 +88,13 @@ protected:
 	void Die_Multicast();
 
 	UFUNCTION()
-	void OnStunnedTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	void OnEffectRemoved(const FActiveGameplayEffect& Effect) const;
+	
+	void OnHealthChanged(const FOnAttributeChangeData& Data) const;
+	void OnMaxHealthChanged(const FOnAttributeChangeData& Data) const;
 
-	UFUNCTION()
-	void OnEffectRemoved(const FActiveGameplayEffect& Effect);
+	UPROPERTY(BlueprintReadOnly, Category = "PlayerInfo")
+	UPlayerInfo* PlayerInfo;
 
 public:
 	/** Returns CameraBoom subobject **/
