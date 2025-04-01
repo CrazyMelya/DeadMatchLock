@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DMLCharacter.h"
 #include "Abilities/GameplayAbility.h"
 #include "DMLGameplayAbility.generated.h"
 
@@ -37,6 +38,8 @@ class DEADMATCHLOCK_API UDMLGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
+	UDMLGameplayAbility(const FObjectInitializer& InObjectInitializer);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cooldowns")
 	FScalableFloat CooldownDuration;
 
@@ -60,7 +63,12 @@ public:
 
 	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) override;
 
+	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	bool EndOnReleaseInnput = true;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character")
+	ADMLCharacter* Character = nullptr;
 };

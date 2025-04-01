@@ -14,7 +14,6 @@ UGA_Jump::UGA_Jump(const FObjectInitializer& ObjectInitializer)
 {
 	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	CostData.Add(FGameplayTag::RequestGameplayTag(FName("SetByCaller.Cost.Stamina")), -1.0f);
 	CostGameplayEffectClass = UGE_StaminaCost::StaticClass();
 }
@@ -23,7 +22,6 @@ void UGA_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 {
 	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
 	{
-		ADMLCharacter* Character = CastChecked<ADMLCharacter>(ActorInfo->AvatarActor.Get());
 		if (!Character)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Invalid character in %s"), *GetName());
@@ -51,8 +49,6 @@ void UGA_Jump::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGam
 
 bool UGA_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
-	const ADMLCharacter* Character = CastChecked<ADMLCharacter>(ActorInfo->AvatarActor.Get(), ECastCheckedType::NullAllowed);
-		
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
@@ -71,14 +67,12 @@ void UGA_Jump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 	
-	ADMLCharacter * Character = CastChecked<ADMLCharacter>(ActorInfo->AvatarActor.Get());
 	Character->StopJumping();
 }
 
 bool UGA_Jump::CheckCost(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
 {
-	const ADMLCharacter* Character = CastChecked<ADMLCharacter>(ActorInfo->AvatarActor.Get(), ECastCheckedType::NullAllowed);
 	if (Character->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
 		return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 	return true;

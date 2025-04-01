@@ -12,7 +12,6 @@ UGA_Dash::UGA_Dash(const FObjectInitializer& ObjectInitializer)
 {
 	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	CostData.Add(FGameplayTag::RequestGameplayTag(FName("SetByCaller.Cost.Stamina")), -1.0f);
 	CostGameplayEffectClass = UGE_StaminaCost::StaticClass();
 	EndOnReleaseInnput = false;
@@ -22,18 +21,12 @@ void UGA_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 {
 	if (IsLocallyControlled())
 	{
-		ADMLCharacter* Character = CastChecked<ADMLCharacter>(ActorInfo->AvatarActor.Get());
 		if (!Character)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Invalid character in %s"), *GetName());
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
-		// if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-		// {
-		// 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-		// 	return;
-		// }
 		PerformDash(Character->GetLastMovementInputVector());
 	}
 }

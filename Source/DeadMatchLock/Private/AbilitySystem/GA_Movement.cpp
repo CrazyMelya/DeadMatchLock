@@ -3,12 +3,6 @@
 
 #include "AbilitySystem/GA_Movement.h"
 
-
-UGA_Movement::UGA_Movement(const FObjectInitializer& ObjectInitializer)
-{
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-}
-
 void UGA_Movement::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                    const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -34,11 +28,4 @@ void UGA_Movement::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		}
 	}
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-}
-
-void UGA_Movement::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
-{
-	Super::OnGiveAbility(ActorInfo, Spec);
-
-	Character = Cast<ADMLCharacter>(GetAvatarActorFromActorInfo());
 }

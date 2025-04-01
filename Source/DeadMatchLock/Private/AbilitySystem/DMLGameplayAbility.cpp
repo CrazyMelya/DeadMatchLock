@@ -7,8 +7,13 @@
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "DMLDeveloperSettings.h"
 
+UDMLGameplayAbility::UDMLGameplayAbility(const FObjectInitializer& InObjectInitializer): Super(InObjectInitializer)
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
 void UDMLGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+                                        const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
 {
 	const FGameplayEffectSpecHandle CDGEHandle = MakeOutgoingGameplayEffectSpec(Handle, ActorInfo, ActivationInfo, CooldownGameplayEffectClass);
 	if (!CDGEHandle.IsValid())
@@ -109,4 +114,11 @@ void UDMLGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 	}
+}
+
+void UDMLGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnGiveAbility(ActorInfo, Spec);
+
+	Character = Cast<ADMLCharacter>(GetAvatarActorFromActorInfo());
 }
