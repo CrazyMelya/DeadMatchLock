@@ -10,6 +10,7 @@
 UDMLGameplayAbility::UDMLGameplayAbility(const FObjectInitializer& InObjectInitializer): Super(InObjectInitializer)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 }
 
 void UDMLGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle,

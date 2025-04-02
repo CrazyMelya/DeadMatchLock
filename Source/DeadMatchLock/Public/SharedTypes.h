@@ -28,6 +28,7 @@ enum class EAbilityInputID : uint8
 	Look UMETA(DisplayName = "Look"),
 	HeavyStrike UMETA(DisplayName = "HeavyStrike"),
 	LightStrike UMETA(DisplayName = "LightStrike"),
+	Parry UMETA(DisplayName = "Parry"),
 };
 
 USTRUCT(BlueprintType)
