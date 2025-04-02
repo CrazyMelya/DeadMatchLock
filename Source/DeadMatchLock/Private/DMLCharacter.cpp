@@ -230,6 +230,38 @@ void ADMLCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	}
 }
 
+void ADMLCharacter::PauseMontage_Implementation()
+{
+	if (auto AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		if (auto CurrentMontage = AnimInstance->GetCurrentActiveMontage())
+		{
+			AnimInstance->Montage_Pause(CurrentMontage);
+		}
+	}
+}
+
+void ADMLCharacter::ResumeMontage_Implementation()
+{
+	if (auto AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		if (auto CurrentMontage = AnimInstance->GetCurrentActiveMontage())
+		{
+			AnimInstance->Montage_Resume(CurrentMontage);
+		}
+	}
+}
+
+void ADMLCharacter::BP_PauseMontage()
+{
+	PauseMontage();
+}
+
+void ADMLCharacter::BP_ResumeMontage()
+{
+	ResumeMontage();
+}
+
 void ADMLCharacter::StartAbility(EAbilityInputID InputID)
 {
 	AbilitySystemComponent->PressInputID(static_cast<int32>(InputID));

@@ -58,6 +58,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "Look")
 	FVector2D GetLookVector();
 
+	UFUNCTION(BlueprintCallable, DisplayName="PauseMontage")
+	void BP_PauseMontage();
+
+	UFUNCTION(BlueprintCallable, DisplayName="ResumeMontage")
+	void BP_ResumeMontage();
+
 protected:
 	virtual void StartAbility(EAbilityInputID InputID);
 	virtual void EndAbility(EAbilityInputID InputID);
@@ -103,6 +109,10 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 private:
-	FVector2D MovementVector;
+	UFUNCTION(NetMulticast, Unreliable)
+	void PauseMontage();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void ResumeMontage();
 };
 
