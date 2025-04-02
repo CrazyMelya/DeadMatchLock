@@ -19,7 +19,7 @@ protected:
 	void OnTimerCompleted();
 	virtual void OnTimerCompleted_Implementation();
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditInstanceOnly, Category="Duration")
 	FTimerHandle Timer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Duration")
