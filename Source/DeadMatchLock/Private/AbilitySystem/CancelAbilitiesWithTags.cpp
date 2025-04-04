@@ -12,15 +12,8 @@ void UCancelAbilitiesWithTags::OnGameplayEffectApplied(FActiveGameplayEffectsCon
                                                        FGameplayEffectSpec& GESpec, FPredictionKey& PredictionKey) const
 {
 	Super::OnGameplayEffectApplied(ActiveGEContainer, GESpec, PredictionKey);
-	auto Causer = GESpec.GetContext().GetEffectCauser();
-
-	if (!Causer) return;
 	
-	auto AbilitySystem = Causer->FindComponentByClass<UAbilitySystemComponent>();
-
-	if (!AbilitySystem) return;
-
-	AbilitySystem->CancelAbilities(&CancelAbilitiesTagsContainer.CombinedTags);
+	ActiveGEContainer.Owner->CancelAbilities(&CancelAbilitiesTagsContainer.CombinedTags);
 }
 
 void UCancelAbilitiesWithTags::PostInitProperties()

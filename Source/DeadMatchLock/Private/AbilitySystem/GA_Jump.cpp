@@ -28,6 +28,9 @@ void UGA_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
+		
+		if (TryWallJump()) return;
+		
 		if (Character->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
 		{
 			if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -76,4 +79,25 @@ bool UGA_Jump::CheckCost(const FGameplayAbilitySpecHandle Handle,
 	if (Character->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
 		return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 	return true;
+}
+
+bool UGA_Jump::TryWallJump()
+{
+	if (!Character->WallJumpIsAllowed()) return false;
+
+	FHitResult Hit;
+	FVector Start = Character->GetActorLocation() - FVector(0, 0, 90);
+	FVector End = Start - Character->GetLastMovementInputVector() * 100.0f;
+	FCollisionQueryParams Params;
+	Params.TraceTag = "WallJump";
+	Params.AddIgnoredActor(Character);
+#if !UE_BUILD_SHIPPING
+	GetWorld()->DebugDrawTraceTag = TEXT("WallJump");
+#endif
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params))
+	{
+		Character->WallJump((Character->GetLastMovementInputVector() + FVector::UpVector * 1.5).GetSafeNormal());
+		return true;
+	}
+	return false;
 }

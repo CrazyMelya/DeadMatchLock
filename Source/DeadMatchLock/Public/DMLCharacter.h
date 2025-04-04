@@ -102,12 +102,29 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "PlayerInfo")
 	UPlayerInfo* PlayerInfo;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Character Movement")
+	float WallJumpForce = 1000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Movement")
+	int32 MaxWallJumps = 1;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Character Movement")
+	int32 CurrentWallJumps = 0;
+
+	virtual void ResetJumpState() override;
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	UFUNCTION(BlueprintCallable, Category = "Character Movement")
+	bool WallJumpIsAllowed();
+
+	UFUNCTION(BlueprintCallable, Category = "Character Movement")
+	void WallJump(FVector JumpDirection);
+	
 private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void PauseMontage();

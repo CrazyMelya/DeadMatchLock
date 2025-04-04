@@ -133,7 +133,7 @@ void ADMLGameMode::HandleStartingNewPlayer_Implementation(APlayerController* New
 	{
 		if (NumPlayers >= GameInstance->GetNumPlayers())
 		{
-			DMLGameState->GameTime = 10;
+			DMLGameState->GameTime = 3;
 			GetWorld()->GetTimerManager().SetTimer(GameTimer, this, &ThisClass::StartMatchTimerTick, 1.0f, true);
 		}
 	}

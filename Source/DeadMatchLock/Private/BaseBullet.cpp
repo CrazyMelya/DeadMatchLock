@@ -55,12 +55,14 @@ void ABaseBullet::OnOverlap_Implementation(UPrimitiveComponent* OverlappedCompon
 	{
 		if (auto Victim = Cast<ADMLCharacter>(OtherActor))
 		{
-			if (auto Causer = Cast<IAbilitySystemInterface>(GetInstigator()))
+			if (auto DamageInstigator = Cast<IAbilitySystemInterface>(GetInstigator()))
 			{
-				if (auto AbilitySystem = Causer->GetAbilitySystemComponent())
+				if (auto AbilitySystem = DamageInstigator->GetAbilitySystemComponent())
 				{
 					auto DamageEffect = DamageEffectClass->GetDefaultObject<UGameplayEffect>();
-					AbilitySystem->ApplyGameplayEffectToTarget(DamageEffect, Victim->AbilitySystemComponent, 0, AbilitySystem->MakeEffectContext());
+					auto Context = AbilitySystem->MakeEffectContext();
+					Context.Get()->SetEffectCauser(this);
+					AbilitySystem->ApplyGameplayEffectToTarget(DamageEffect, Victim->AbilitySystemComponent, 0, Context);
 				}
 			}
 		}
