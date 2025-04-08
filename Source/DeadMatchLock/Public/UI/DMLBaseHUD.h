@@ -99,4 +99,13 @@ protected:
 
 	UFUNCTION()
 	void OnRep_GameState();
+
+	UFUNCTION()
+	void OnRollJumpWindowChanged(const FGameplayTag Tag, int32 NewCount);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, DisplayName = "On Roll Jump Window Open")
+	void BP_OnRollJumpWindowOpen();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, DisplayName = "On Roll Jump Window Close")
+	void BP_OnRollJumpWindowClose();
 };

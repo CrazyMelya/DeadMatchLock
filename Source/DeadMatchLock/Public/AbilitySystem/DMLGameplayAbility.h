@@ -67,7 +67,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	bool EndOnReleaseInnput = true;
+	bool EndOnReleaseInput = true;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
 	ADMLCharacter* Character = nullptr;

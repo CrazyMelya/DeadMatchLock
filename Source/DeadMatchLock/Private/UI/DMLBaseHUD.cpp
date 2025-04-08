@@ -23,6 +23,7 @@ void UDMLBaseHUD::SetTargetCharacter_Implementation(ADMLCharacter* NewTargetChar
 		BIND_ATTRIBUTE_VALUE_CHANGED(MaxStamina, AbilitySystem, bFound);
 		BIND_ATTRIBUTE_VALUE_CHANGED(Ammo, AbilitySystem, bFound);
 		BIND_ATTRIBUTE_VALUE_CHANGED(MaxAmmo, AbilitySystem, bFound);
+		AbilitySystem->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(TAG_WINDOW_ROLLJUMP), EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::OnRollJumpWindowChanged);
 		AbilitySystem->AbilityActivatedCallbacks.AddUObject(this, &UDMLBaseHUD::OnAbilityActivated);
 		AbilitySystem->AbilityEndedCallbacks.AddUObject(this, &UDMLBaseHUD::OnAbilityEnded);
 	}
@@ -58,4 +59,16 @@ void UDMLBaseHUD::OnAbilityEnded_Implementation(UGameplayAbility* EndedAbility)
 
 void UDMLBaseHUD::OnRep_GameState()
 {
+}
+
+void UDMLBaseHUD::OnRollJumpWindowChanged(const FGameplayTag Tag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		BP_OnRollJumpWindowOpen();
+	}
+	else
+	{
+		BP_OnRollJumpWindowClose();
+	}
 }

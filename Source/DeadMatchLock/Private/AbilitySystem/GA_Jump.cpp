@@ -29,8 +29,6 @@ void UGA_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 			return;
 		}
 		
-		// if (TryWallJump()) return;
-		
 		if (Character->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
 		{
 			if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
@@ -56,8 +54,7 @@ bool UGA_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	{
 		return false;
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, "Jump");
+	
 	return (Character && Character->CanJump());
 }
 

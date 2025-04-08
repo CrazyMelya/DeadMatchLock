@@ -11,7 +11,8 @@ void UDMLAbilityDataAsset::GiveAbilities(UAbilitySystemComponent* ASC) const
 		{
 			if (Ability.AbilityClass)
 			{
-				ASC->GiveAbility(FGameplayAbilitySpec(Ability.AbilityClass, 1, static_cast<int32>(Ability.InputID)));
+				FGameplayAbilitySpec AbilitySpec(Ability.AbilityClass, 1, static_cast<int32>(Ability.InputID));
+				ASC->GiveAbility(AbilitySpec);
 			}
 		}
 	}

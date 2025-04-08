@@ -3,8 +3,13 @@
 
 #include "AbilitySystem/Abilities/GA_Look.h"
 
+UGA_Look::UGA_Look(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+{
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
+}
+
 void UGA_Look::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+                               const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 

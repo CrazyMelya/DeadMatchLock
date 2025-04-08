@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "DMLGameplayAbility.h"
-#include "GA_Dash.generated.h"
+#include "GA_Roll.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADMATCHLOCK_API UGA_Dash : public UDMLGameplayAbility
+class DEADMATCHLOCK_API UGA_Roll : public UDMLGameplayAbility
 {
 	GENERATED_BODY()
 
-	UGA_Dash(const FObjectInitializer& ObjectInitializer);
+	UGA_Roll(const FObjectInitializer& ObjectInitializer);
 
 public:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -23,4 +23,5 @@ public:
 private:
 	virtual void ActivateAbility(FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void InputReleased(FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, FGameplayAbilityActivationInfo ActivationInfo) override;
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 };

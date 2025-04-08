@@ -19,7 +19,6 @@ class DEADMATCHLOCK_API UDMLAbilityDataAsset : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	TArray<FAbilityInitData> Abilities;
-
-	public:
+	
 	void GiveAbilities(UAbilitySystemComponent* ASC) const;
 };

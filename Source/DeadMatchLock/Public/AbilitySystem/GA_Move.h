@@ -5,17 +5,17 @@
 #include "CoreMinimal.h"
 #include "DMLCharacter.h"
 #include "AbilitySystem/DMLGameplayAbility.h"
-#include "GA_Look.generated.h"
+#include "GA_Move.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADMATCHLOCK_API UGA_Look : public UDMLGameplayAbility
+class DEADMATCHLOCK_API UGA_Move : public UDMLGameplayAbility
 {
 	GENERATED_BODY()
 
-	UGA_Look(const FObjectInitializer& ObjectInitializer);
+	// UGA_Move(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };

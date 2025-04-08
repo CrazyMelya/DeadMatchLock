@@ -9,6 +9,7 @@
 #define TAG_STUNNED "Status.Stunned"
 #define TAG_NEEDRELOAD "Status.NeedReload"
 #define TAG_RELOAD "Ability.Channeling.Reload"
+#define TAG_WINDOW_ROLLJUMP "Status.Window.RollJump"
 
 class UUserWidget;
 

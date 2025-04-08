@@ -109,7 +109,7 @@ bool UDMLGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, con
 void UDMLGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	if (!EndOnReleaseInnput) return;
+	if (!EndOnReleaseInput) return;
 	
 	if (ActorInfo != nullptr && ActorInfo->AvatarActor != nullptr)
 	{
