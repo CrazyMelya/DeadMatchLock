@@ -4,19 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/DMLGameplayAbility.h"
-#include "GA_RollJump.generated.h"
+#include "GA_Climb.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DEADMATCHLOCK_API UGA_RollJump : public UDMLGameplayAbility
+class DEADMATCHLOCK_API UGA_Climb : public UDMLGameplayAbility
 {
 	GENERATED_BODY()
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	
-	UFUNCTION(Server, Reliable)
-	void Jump_Server(FVector JumpDirection);
-	
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Climb")
+	float MinClimbHeight = 40.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Climb")
+	float MaxClimbHeight = 100.0f;
+
+	UFUNCTION(BlueprintCallable)
+	bool SearchWall();
 };

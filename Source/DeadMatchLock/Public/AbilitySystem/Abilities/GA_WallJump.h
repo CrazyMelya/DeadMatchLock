@@ -16,6 +16,9 @@ class DEADMATCHLOCK_API UGA_WallJump : public UDMLGameplayAbility
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	UFUNCTION(Server, Reliable)
-	void WallJump_Server(FVector JumpDirection);
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "Perform Jump")
+	void PerformJump(FVector JumpDirection);
 };

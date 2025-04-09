@@ -14,6 +14,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
+#include "AbilitySystem/Effects/GE_ResetJumpState.h"
 #include "Binding/States/WidgetStateRegistration.h"
 #include "UI/PlayerInfo.h"
 
@@ -153,17 +154,12 @@ void ADMLCharacter::OnMaxHealthChanged(const FOnAttributeChangeData& Data) const
 	}
 }
 
-void ADMLCharacter::WallJump(FVector JumpDirection)
+void ADMLCharacter::ResetJumpState()
 {
-	if (WallJumpIsAllowed())
-	{
-		GetCharacterMovement()->Launch(JumpDirection * WallJumpForce);
-	}
-}
+	Super::ResetJumpState();
 
-bool ADMLCharacter::WallJumpIsAllowed()
-{
-	return GetCharacterMovement()->IsFalling();
+	AbilitySystemComponent->BP_ApplyGameplayEffectToSelf(UGE_ResetJumpState::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Reset Jump State");
 }
 
 void ADMLCharacter::Die_Implementation(AActor* Killer)
