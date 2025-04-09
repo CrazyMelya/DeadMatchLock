@@ -12,6 +12,8 @@ UCharactersAttributeSet::UCharactersAttributeSet()
 	INIT_MAX_MAPS(Health);
 	INIT_MAX_MAPS(Ammo);
 	INIT_MAX_MAPS(Stamina);
+	INIT_MAX_MAPS(AirJumps);
+	INIT_MAX_MAPS(AirDashes);
 }
 
 void UCharactersAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
@@ -62,6 +64,26 @@ void UCharactersAttributeSet::OnRep_HealthRegen(const FGameplayAttributeData& Ol
 void UCharactersAttributeSet::OnRep_FireRate(const FGameplayAttributeData& OldFireRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, FireRate, OldFireRate);
+}
+
+void UCharactersAttributeSet::OnRep_AirJumps(const FGameplayAttributeData& OldAirJumps)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, WeaponDamage, OldAirJumps);
+}
+
+void UCharactersAttributeSet::OnRep_MaxAirJumps(const FGameplayAttributeData& OldMaxAirJumps)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, WeaponDamage, OldMaxAirJumps);
+}
+
+void UCharactersAttributeSet::OnRep_AirDashes(const FGameplayAttributeData& OldAirDashes)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, WeaponDamage, OldAirDashes);
+}
+
+void UCharactersAttributeSet::OnRep_MaxAirDashes(const FGameplayAttributeData& OldMaxAirDashes)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, WeaponDamage, OldMaxAirDashes);
 }
 
 void UCharactersAttributeSet::OnRep_WeaponDamage(const FGameplayAttributeData& OldWeaponDamage)

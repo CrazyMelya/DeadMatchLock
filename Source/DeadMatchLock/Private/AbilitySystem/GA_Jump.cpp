@@ -12,10 +12,10 @@
 UGA_Jump::UGA_Jump(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
-	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-	CostData.Add(FGameplayTag::RequestGameplayTag(FName("SetByCaller.Cost.Stamina")), -1.0f);
-	CostGameplayEffectClass = UGE_StaminaCost::StaticClass();
+	// ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+	// NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+	// CostData.Add(FGameplayTag::RequestGameplayTag(FName("SetByCaller.Cost.Stamina")), -1.0f);
+	// CostGameplayEffectClass = UGE_StaminaCost::StaticClass();
 }
 
 void UGA_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -28,15 +28,7 @@ void UGA_Jump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 			EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 			return;
 		}
-		
-		if (Character->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
-		{
-			if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-			{
-				return;
-			}
-		}
-		Character->Jump();
+		PerformJump();
 	}
 }
 
@@ -50,12 +42,7 @@ void UGA_Jump::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGam
 
 bool UGA_Jump::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-	{
-		return false;
-	}
-	
-	return (Character && Character->CanJump());
+	return Character && Character->GetCharacterMovement()->IsWalking() && Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 }
 
 void UGA_Jump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
@@ -68,14 +55,7 @@ void UGA_Jump::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 	
-	Character->StopJumping();
+	// Character->StopJumping();
 }
 
-bool UGA_Jump::CheckCost(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
-{
-	if (Character->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
-		return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
-	return true;
-}
 

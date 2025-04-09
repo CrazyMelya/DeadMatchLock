@@ -124,6 +124,34 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_WeaponDamage)
 	FGameplayAttributeData WeaponDamage;
 	ATTRIBUTE_ACCESSORS(WeaponDamage);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_AirJumps)
+	FGameplayAttributeData AirJumps;
+	ATTRIBUTE_ACCESSORS(AirJumps);
+
+	UFUNCTION()
+	virtual void OnRep_AirJumps(const FGameplayAttributeData& OldAirJumps);
+
+	UPROPERTY(EditAnywhere,	BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxAirJumps)
+	FGameplayAttributeData MaxAirJumps;
+	ATTRIBUTE_ACCESSORS(MaxAirJumps);
+	
+	UFUNCTION()
+	virtual void OnRep_MaxAirJumps(const FGameplayAttributeData& OldMaxAirJumps);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_AirDashes)
+	FGameplayAttributeData AirDashes;
+	ATTRIBUTE_ACCESSORS(AirDashes);
+
+	UFUNCTION()
+	virtual void OnRep_AirDashes(const FGameplayAttributeData& OldAirDashes);
+
+	UPROPERTY(EditAnywhere,	BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxAirDashes)
+	FGameplayAttributeData MaxAirDashes;
+	ATTRIBUTE_ACCESSORS(MaxAirDashes);
+	
+	UFUNCTION()
+	virtual void OnRep_MaxAirDashes(const FGameplayAttributeData& OldMaxAirDashes);
 	
 	UFUNCTION()
 	virtual void OnRep_WeaponDamage(const FGameplayAttributeData& OldWeaponDamage);

@@ -157,21 +157,13 @@ void ADMLCharacter::WallJump(FVector JumpDirection)
 {
 	if (WallJumpIsAllowed())
 	{
-		CurrentWallJumps++;
 		GetCharacterMovement()->Launch(JumpDirection * WallJumpForce);
 	}
 }
 
 bool ADMLCharacter::WallJumpIsAllowed()
 {
-	return CurrentWallJumps < MaxWallJumps && GetCharacterMovement()->MovementMode == MOVE_Falling;
-}
-
-void ADMLCharacter::ResetJumpState()
-{
-	Super::ResetJumpState();
-
-	CurrentWallJumps = 0;
+	return GetCharacterMovement()->IsFalling();
 }
 
 void ADMLCharacter::Die_Implementation(AActor* Killer)

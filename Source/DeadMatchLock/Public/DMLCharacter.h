@@ -105,13 +105,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Character Movement")
 	float WallJumpForce = 1000.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Movement")
-	int32 MaxWallJumps = 1;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Character Movement")
-	int32 CurrentWallJumps = 0;
-
-	virtual void ResetJumpState() override;
+	// virtual void ResetJumpState() override;
 
 public:
 	/** Returns CameraBoom subobject **/
