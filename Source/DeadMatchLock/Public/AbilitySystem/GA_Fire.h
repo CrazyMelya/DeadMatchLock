@@ -20,6 +20,9 @@ private:
 	UFUNCTION()
 	void Fire();
 
+	UFUNCTION(Server, Reliable)
+	void Fire_Server(uint32 BulletID);
+
 	FTimerHandle FireTimer;
 
 protected:
@@ -31,8 +34,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Fire")
 	float TraceDistance;
-
-	ADMLCharacter* Character;
 
 	virtual float GetCooldownDuration_Implementation() const override;
 	

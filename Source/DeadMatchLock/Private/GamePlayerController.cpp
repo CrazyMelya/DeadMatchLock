@@ -3,6 +3,7 @@
 
 #include "GamePlayerController.h"
 
+#include "ClientPredictedActor.h"
 #include "UI/DMLBaseHUD.h"
 #include "DMLCharacter.h"
 #include "EnhancedInputSubsystems.h"
@@ -107,5 +108,50 @@ void AGamePlayerController::CreateWidgets_Implementation()
 	if (!Menu)
 	{
 		Menu = CreateWidget<UUserWidget>(this, MenuClass, FName("Menu"));
+	}
+}
+
+uint32 AGamePlayerController::RequestPredictedActorID()
+{
+	const uint32 NewID = NextPredictedActorID++;
+	PredictedActors.Add(FPredictedActorInfo( { NewID }) );
+	return NewID;
+}
+
+void AGamePlayerController::SetPredictedActor(uint32 ID, AClientPredictedActor* PredictedActor)
+{
+	if (auto pInfo = PredictedActors.FindByPredicate([ID](const FPredictedActorInfo& Info)
+	{
+		return Info.ClientActorID == ID;
+	}))
+	{
+		check (!pInfo->PredictedActor.IsValid());
+		pInfo->PredictedActor = PredictedActor;
+
+		// If both are valid, link up
+		if (pInfo->PredictedActor.IsValid() && pInfo->ReplicatedActor.IsValid())
+		{
+			pInfo->ReplicatedActor->LinkReplicatedWithPredicted(pInfo->PredictedActor.Get());
+		}
+	}
+}
+
+void AGamePlayerController::SetPredictedActorReplicatedActor(uint32 ID, AClientPredictedActor* ReplicatedActor)
+{
+	if (auto pInfo = PredictedActors.FindByPredicate([ID](const FPredictedActorInfo& Info)
+	{
+		return Info.ClientActorID == ID;
+	}))
+	{
+		// check (!pInfo->ReplicatedActor.IsValid());
+		if (pInfo->ReplicatedActor.IsValid())
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "Predicted Actor Replicated");
+		pInfo->ReplicatedActor = ReplicatedActor;
+
+		// If both are valid, link up
+		if (pInfo->PredictedActor.IsValid() && pInfo->ReplicatedActor.IsValid())
+		{
+			pInfo->ReplicatedActor->LinkReplicatedWithPredicted(pInfo->PredictedActor.Get());
+		}
 	}
 }

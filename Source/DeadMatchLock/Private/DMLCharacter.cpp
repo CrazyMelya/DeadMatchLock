@@ -159,7 +159,6 @@ void ADMLCharacter::ResetJumpState()
 	Super::ResetJumpState();
 
 	AbilitySystemComponent->BP_ApplyGameplayEffectToSelf(UGE_ResetJumpState::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Reset Jump State");
 }
 
 void ADMLCharacter::Die_Implementation(AActor* Killer)

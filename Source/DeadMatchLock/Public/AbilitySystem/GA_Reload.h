@@ -18,16 +18,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Effect")
 	TSubclassOf<UGameplayEffect> ReloadEffectClass;
 
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	virtual void OnTimerCompleted_Implementation() override;
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-
-	UFUNCTION()
-	void OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
-
-	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
-
+	
 	FOnGameplayEffectTagCountChanged OnStunTagCountChanged;
 };

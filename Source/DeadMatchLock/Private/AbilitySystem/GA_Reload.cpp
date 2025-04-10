@@ -7,16 +7,6 @@
 #include "SharedTypes.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 
-void UGA_Reload::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	// GetAbilitySystemComponentFromActorInfo()->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag("Status.Stun"), EGameplayTagEventType::NewOrRemoved)
-	// 	.AddUObject(this, &ThisClass::OnStunTagChanged);
-}
-
 void UGA_Reload::OnTimerCompleted_Implementation()
 {
 	if (HasAuthority(&CurrentActivationInfo))
@@ -37,26 +27,4 @@ bool UGA_Reload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	if (Ammo >= MaxAmmo)
 		return false;
 	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
-}
-
-void UGA_Reload::OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
-{
-	// if (NewCount > 0)
-	// {
-	// 	CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
-	// }
-	// else if (CanActivateAbility(CurrentSpecHandle, CurrentActorInfo))
-	// if (NewCount <= 0)
-	// {
-	// 	ActivateAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, nullptr);
-	// }
-}
-
-void UGA_Reload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
-{
-	Super::OnGiveAbility(ActorInfo, Spec);
-
-	GetAbilitySystemComponentFromActorInfo()->RegisterGameplayTagEvent(FGameplayTag::RequestGameplayTag(TAG_STUNNED), EGameplayTagEventType::NewOrRemoved)
-		.AddUObject(this, &ThisClass::OnStunTagChanged);
 }

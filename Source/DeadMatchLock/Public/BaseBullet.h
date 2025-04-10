@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ClientPredictedActor.h"
 #include "GameplayEffect.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
@@ -10,7 +11,7 @@
 #include "BaseBullet.generated.h"
 
 UCLASS(Blueprintable)
-class DEADMATCHLOCK_API ABaseBullet : public AActor
+class DEADMATCHLOCK_API ABaseBullet : public AClientPredictedActor
 {
 	GENERATED_BODY()
 	

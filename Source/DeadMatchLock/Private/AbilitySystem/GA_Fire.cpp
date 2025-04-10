@@ -4,6 +4,7 @@
 #include "AbilitySystem/GA_Fire.h"
 
 #include "AbilitySystemComponent.h"
+#include "ClientPredictedActor.h"
 #include "DMLCharacter.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "Camera/CameraComponent.h"
@@ -11,11 +12,25 @@
 
 void UGA_Fire::Fire()
 {
+	uint32 BulletID = AClientPredictedActor::GenerateClientID(Character);
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Fire %i"), BulletID));
 	FVector Location = Character->GetFirePointLocation();
 	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = Character;
 	SpawnParameters.Owner = Character;
+	bool bIsPredicted = true;
+	SpawnParameters.CustomPreSpawnInitalization = [bIsPredicted, BulletID](AActor* Actor)
+	{
+		// Do the ID init here, before BeginPlay & replication
+		if (auto PA = Cast<AClientPredictedActor>(Actor))
+		{
+			PA->SetID(BulletID);
+			/// You should determine this value yourself based on whether this is the local creation, or the Server RPC
+			/// It just sets the "bIsPredictedCopy" internal variable which lets us differentiate on the local client
+			PA->SetIsPredictedCopy(bIsPredicted);
+		}
+	};
 	auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
 		BulletClass,
 		FTransform(Rotation, Location),
@@ -23,8 +38,53 @@ void UGA_Fire::Fire()
 		Character);
 	if (Bullet)
 	{
-		TArray<AActor*> ActorsToIgnore;
-		Bullet->ActorsToIgnore = ActorsToIgnore;
+		Bullet->ActorsToIgnore.Add(Character);
+		Bullet->FinishSpawning(FTransform(Rotation, Location));
+		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
+		Fire_Server(BulletID);
+		bool bFound;
+		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);
+		if (bFound)
+		{
+			if (CurrentAmmo <= 0)
+			{
+				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			}
+		}
+	}
+	else
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	}
+}
+
+void UGA_Fire::Fire_Server_Implementation(uint32 BulletID)
+{
+	FVector Location = Character->GetFirePointLocation();
+	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = Character;
+	SpawnParameters.Owner = Character;
+	bool bIsPredicted = false;
+	SpawnParameters.CustomPreSpawnInitalization = [bIsPredicted, BulletID](AActor* Actor)
+	{
+		// Do the ID init here, before BeginPlay & replication
+		if (auto PA = Cast<AClientPredictedActor>(Actor))
+		{
+			PA->SetID(BulletID);
+			/// You should determine this value yourself based on whether this is the local creation, or the Server RPC
+			/// It just sets the "bIsPredictedCopy" internal variable which lets us differentiate on the local client
+			PA->SetIsPredictedCopy(bIsPredicted);
+		}
+	};
+	auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
+		BulletClass,
+		FTransform(Rotation, Location),
+		Character,
+		Character);
+	if (Bullet)
+	{
+		Bullet->ActorsToIgnore.Add(Character);
 		Bullet->FinishSpawning(FTransform(Rotation, Location));
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
 		bool bFound;
@@ -81,7 +141,7 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (HasAuthority(&ActivationInfo))
+	if (IsLocallyControlled())
 	{
 		Character = Cast<ADMLCharacter>(GetAvatarActorFromActorInfo());
 		if (Character)
