@@ -11,7 +11,6 @@ AClientPredictedActor::AClientPredictedActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
@@ -19,7 +18,7 @@ void AClientPredictedActor::BeginPlay()
 {
 	if (IsLocallyOwned() && GetWorld()->GetNetMode() == NM_Client)
 	{
-		// GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, bIsPredictedCopy ? TEXT("True") : TEXT("False"));
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("Bullet ID = %u"), ID));
 		if (auto PC = Cast<AGamePlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld())))
 		{
 			// If either of these paths matches us up with our counterpart, will call LinkReplicatedWithPredicted
@@ -99,5 +98,12 @@ void AClientPredictedActor::UpdateFromFollowedActor_Implementation(AClientPredic
 
 	SetActorRotation(
 		FMath::RInterpTo(GetActorRotation(), FollowedActor->GetActorRotation(), DeltaTime, 10));
+}
+
+void AClientPredictedActor::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, ID);
 }
 

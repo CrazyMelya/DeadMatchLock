@@ -31,15 +31,15 @@ void UGA_Fire::Fire()
 			PA->SetIsPredictedCopy(bIsPredicted);
 		}
 	};
-	auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
-		BulletClass,
-		FTransform(Rotation, Location),
-		Character,
-		Character);
-	if (Bullet)
+	// auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
+	// 	BulletClass,
+	// 	FTransform(Rotation, Location),
+	// 	Character,
+	// 	Character);
+	if (auto Bullet = GetWorld()->SpawnActor<ABaseBullet>(BulletClass, Location, Rotation, SpawnParameters))
 	{
 		Bullet->ActorsToIgnore.Add(Character);
-		Bullet->FinishSpawning(FTransform(Rotation, Location));
+		// Bullet->FinishSpawning(FTransform(Rotation, Location));
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
 		Fire_Server(BulletID);
 		bool bFound;
@@ -77,15 +77,15 @@ void UGA_Fire::Fire_Server_Implementation(uint32 BulletID)
 			PA->SetIsPredictedCopy(bIsPredicted);
 		}
 	};
-	auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
-		BulletClass,
-		FTransform(Rotation, Location),
-		Character,
-		Character);
-	if (Bullet)
+	// auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
+	// 	BulletClass,
+	// 	FTransform(Rotation, Location),
+	// 	Character,
+	// 	Character);
+	if (auto Bullet = GetWorld()->SpawnActor<ABaseBullet>(BulletClass, Location, Rotation, SpawnParameters))
 	{
 		Bullet->ActorsToIgnore.Add(Character);
-		Bullet->FinishSpawning(FTransform(Rotation, Location));
+		// Bullet->FinishSpawning(FTransform(Rotation, Location));
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
 		bool bFound;
 		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);

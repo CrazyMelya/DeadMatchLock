@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
 #include "ClientPredictedActor.generated.h"
 
 UCLASS()
@@ -19,12 +20,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(Replicated)
 	uint32 ID;
 
 	bool bIsPredictedCopy;
 
 	UPROPERTY()
 	AClientPredictedActor* FollowedServerActor;
+
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:	
 	// Called every frame
@@ -34,8 +38,7 @@ public:
 
 	void SetID(const uint32 NewID) { ID = NewID; };
 
-	void SetIsPredictedCopy(bool bPredictedCopy)
-	{ bIsPredictedCopy = bPredictedCopy; };
+	void SetIsPredictedCopy(bool bPredictedCopy) { bIsPredictedCopy = bPredictedCopy; };
 
 	bool IsLocallyOwned() const;
 
