@@ -10,7 +10,6 @@
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/GameStateBase.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UGA_Fire::Fire()
@@ -18,43 +17,15 @@ void UGA_Fire::Fire()
 	uint32 BulletID = AClientPredictedActor::GenerateClientID(Character);
 	FVector Location = Character->GetFirePointLocation();
 	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Instigator = Character;
-	SpawnParameters.Owner = Character;
-	bool bIsPredicted = true;
-	SpawnParameters.CustomPreSpawnInitalization = [bIsPredicted, BulletID](AActor* Actor)
+	if (SpawnBullet(true, BulletID, Location, Rotation))
 	{
-		// Do the ID init here, before BeginPlay & replication
-		if (auto PA = Cast<AClientPredictedActor>(Actor))
-		{
-			PA->SetID(BulletID);
-			/// You should determine this value yourself based on whether this is the local creation, or the Server RPC
-			/// It just sets the "bIsPredictedCopy" internal variable which lets us differentiate on the local client
-			PA->SetIsPredictedCopy(bIsPredicted);
-		}
-	};
-
-	if (SpawnBullet(BulletID, true, Location, Rotation))
-	{
+		if (!HasAuthority(&CurrentActivationInfo))
+			Fire_Server(BulletID, Location, Rotation, GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
-		Fire_Server(BulletID, GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), Location, Rotation);
-		bool bFound;
-		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);
-		if (bFound)
-		{
-			if (CurrentAmmo <= 0)
-			{
-				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-			}
-		}
-	}
-	else
-	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
 }
 
-void UGA_Fire::Fire_Server_Implementation(uint32 BulletID, float ClientTime, FVector Location, FRotator Rotation)
+void UGA_Fire::Fire_Server_Implementation(uint32 BulletID, FVector Location, FRotator Rotation, float ClientTime)
 {
 	auto DefaultBullet = BulletClass->GetDefaultObject<ABaseBullet>();
 	float InitialSpeed = DefaultBullet->MovementComponent->InitialSpeed;
@@ -63,40 +34,14 @@ void UGA_Fire::Fire_Server_Implementation(uint32 BulletID, float ClientTime, FVe
 
 	FVector Start = Location;;
 	FVector End = Start + Direction * InitialSpeed * (GetWorld()->GetTimeSeconds() - ClientTime);
-	if (Rewind(ClientTime, Start, End, Rotation, Radius))
+	Location = End;
+	if (RewindAndTrace(ClientTime, Start, End, Radius) || SpawnBullet(false, BulletID, Location, Rotation))
 	{
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
-		bool bFound;
-		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);
-		if (bFound)
-		{
-			if (CurrentAmmo <= 0)
-			{
-				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-			}
-		}
-		return;
-	}
-	if (SpawnBullet(BulletID, false, End, Rotation))
-	{
-		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
-		bool bFound;
-		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);
-		if (bFound)
-		{
-			if (CurrentAmmo <= 0)
-			{
-				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-			}
-		}
-	}
-	else
-	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
 }
 
-bool UGA_Fire::Rewind(float ClientTime, FVector Start, FVector End, FRotator Rotation, float Radius)
+bool UGA_Fire::RewindAndTrace(float ClientTime, FVector Start, FVector End, float Radius) const
 {
 	TMap<ADMLCharacter*, FSavedFrame> Characters;
 	for (TActorIterator<ADMLCharacter> It(GetWorld()); It; ++It)
@@ -133,18 +78,18 @@ bool UGA_Fire::Rewind(float ClientTime, FVector Start, FVector End, FRotator Rot
 	return bHit;
 }
 
-ABaseBullet* UGA_Fire::SpawnBullet(uint32 BulletID, bool bIsPredicted, FVector Location, FRotator Rotation)
+ABaseBullet* UGA_Fire::SpawnBullet(bool bIsPredicted, uint32 InBulletID, const FVector& Location, const FRotator& Rotation) const
 {
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = Character;
 	SpawnParameters.Owner = Character;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(Character);
-	SpawnParameters.CustomPreSpawnInitalization = [bIsPredicted, BulletID, ActorsToIgnore](AActor* Actor)
+	SpawnParameters.CustomPreSpawnInitalization = [bIsPredicted, InBulletID, ActorsToIgnore](AActor* Actor)
 	{
 		if (auto PA = Cast<AClientPredictedActor>(Actor))
 		{
-			PA->SetID(BulletID);
+			PA->SetID(InBulletID);
 			PA->SetIsPredictedCopy(bIsPredicted);
 		}
 		if (auto Bullet = Cast<ABaseBullet>(Actor))
@@ -153,7 +98,7 @@ ABaseBullet* UGA_Fire::SpawnBullet(uint32 BulletID, bool bIsPredicted, FVector L
 	return GetWorld()->SpawnActor<ABaseBullet>(BulletClass, Location, Rotation, SpawnParameters);
 }
 
-FVector UGA_Fire::CalculateFireTargetLocation()
+FVector UGA_Fire::CalculateFireTargetLocation() const
 {
 	FVector Start = Character->GetFollowCamera()->GetComponentLocation();
 	FVector End = Character->GetFollowCamera()->GetComponentLocation() + Character->GetFollowCamera()->GetForwardVector() * TraceDistance;
@@ -171,17 +116,11 @@ FVector UGA_Fire::CalculateFireTargetLocation()
 	return End;
 }
 
-float UGA_Fire::GetCooldownDuration_Implementation() const
-{
-	return GetWorld()->GetTimerManager().GetTimerRemaining(FireTimer);
-}
-
 void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle,
                                           const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                           bool bReplicateEndAbility, bool bWasCancelled)
 {
 	CommitAbilityCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
-	GetWorld()->GetTimerManager().ClearTimer(FireTimer);
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -193,13 +132,10 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	if (IsLocallyControlled())
 	{
-		Character = Cast<ADMLCharacter>(GetAvatarActorFromActorInfo());
 		if (Character)
 		{
-			bool bFound;
-			auto FireTime = GetAbilitySystemComponentFromActorInfo()->GetGameplayAttributeValue(UCharactersAttributeSet::GetFireRateAttribute(), bFound);
-			if (bFound)
-				GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &UGA_Fire::Fire, FireTime, true, 0);
+			Fire();
+			PlayAnimation();
 		}
 		else
 			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
