@@ -73,6 +73,18 @@ public:
 	UFUNCTION(BlueprintCallable, DisplayName="ResumeMontage")
 	void BP_ResumeMontage();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations")
+	UAnimMontage* FireMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations")
+	UAnimMontage* ReloadMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations")
+	UAnimMontage* LightStrikeMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations")
+	UAnimMontage* HeavyStrikeMontage;
+
 protected:
 	virtual void StartAbility(EAbilityInputID InputID);
 	virtual void EndAbility(EAbilityInputID InputID);
