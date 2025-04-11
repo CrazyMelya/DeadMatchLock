@@ -21,11 +21,13 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
+
+
 UCLASS(config=Game)
 class ADMLCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
-
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -41,11 +43,18 @@ class ADMLCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
+	TArray<FSavedFrame> FrameHistory;
+
+	UFUNCTION()
+	void UpdateSavedFrames();
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
 	UDMLAbilitySystemComponent* AbilitySystemComponent;
 	
 	ADMLCharacter();
+	
+	void RewindToTime(float Time);
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

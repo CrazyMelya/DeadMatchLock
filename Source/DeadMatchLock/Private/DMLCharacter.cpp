@@ -23,6 +23,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 //////////////////////////////////////////////////////////////////////////
 // ADeadMatchLockCharacter
 
+
 ADMLCharacter::ADMLCharacter()
 {
 	// Set size for collision capsule
@@ -103,6 +104,8 @@ void ADMLCharacter::Tick(float DeltaTime)
 
 	FRotator LookAtRotation = (CameraLocation - WidgetLocation).Rotation();
 	WC_PlayerInfo->SetWorldRotation(LookAtRotation);
+	
+	UpdateSavedFrames();
 }
 
 void ADMLCharacter::PostInitializeComponents()
@@ -305,9 +308,38 @@ bool ADMLCharacter::CanJumpInternal_Implementation() const
 			// B) The jump limit has been met AND we were already jumping
 			const bool bJumpKeyHeld = (bPressedJump && JumpKeyHoldTime < GetJumpMaxHoldTime());
 			bJumpIsAllowed = bJumpKeyHeld &&
-				((JumpCurrentCount < JumpMaxCount) || (bWasJumping && JumpCurrentCount == JumpMaxCount));
+				(JumpCurrentCount < JumpMaxCount || (bWasJumping && JumpCurrentCount == JumpMaxCount));
 		}
 	}
 
 	return bJumpIsAllowed;
+}
+
+void ADMLCharacter::UpdateSavedFrames()
+{
+	FSavedFrame NewFrame;
+	NewFrame.Location = GetActorLocation();
+	NewFrame.Timestamp = GetWorld()->GetTimeSeconds();
+
+	FrameHistory.Add(NewFrame);
+	
+	while (FrameHistory.Num() > 100 || FrameHistory[0].Timestamp < GetWorld()->GetTimeSeconds() - 1.0f)
+	{
+		FrameHistory.RemoveAt(0);
+	}
+}
+
+void ADMLCharacter::RewindToTime(float Time)
+{
+	if (HasAuthority())
+	{
+		for (int32 i = FrameHistory.Num() - 1; i > 0; --i)
+		{
+			if (FrameHistory[i].Timestamp <= Time)
+			{
+				SetActorLocation(FrameHistory[i].Location);
+				break;
+			}
+		}
+	}
 }

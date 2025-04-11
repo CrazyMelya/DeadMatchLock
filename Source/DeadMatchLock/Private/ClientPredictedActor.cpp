@@ -88,6 +88,12 @@ void AClientPredictedActor::LinkReplicatedWithPredicted(AClientPredictedActor* P
 void AClientPredictedActor::FollowReplicatedActor_Implementation(AClientPredictedActor* PredictedActor)
 {
 	FollowedServerActor = PredictedActor;
+	FollowedServerActor->OnDestroyed.AddUniqueDynamic(this, &ThisClass::OnFollowedActorDestroyed);
+}
+
+void AClientPredictedActor::OnFollowedActorDestroyed(AActor* DestroyedActor)
+{
+	Destroy();
 }
 
 void AClientPredictedActor::UpdateFromFollowedActor_Implementation(AClientPredictedActor* FollowedActor, float DeltaTime)

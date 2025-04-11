@@ -82,3 +82,10 @@ struct FCharacterData: public FTableRowBase
 	TSubclassOf<class ADMLCharacter> CharacterClass = nullptr;
 };
 
+
+struct FSavedFrame
+{
+	FVector Location;
+	float Timestamp;
+};
+

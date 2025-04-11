@@ -30,6 +30,9 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION()
+	void OnFollowedActorDestroyed(AActor* DestroyedActor);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

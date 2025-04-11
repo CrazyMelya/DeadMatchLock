@@ -6,14 +6,16 @@
 #include "AbilitySystemComponent.h"
 #include "ClientPredictedActor.h"
 #include "DMLCharacter.h"
+#include "EngineUtils.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/GameStateBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UGA_Fire::Fire()
 {
 	uint32 BulletID = AClientPredictedActor::GenerateClientID(Character);
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Fire %i"), BulletID));
 	FVector Location = Character->GetFirePointLocation();
 	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
 	FActorSpawnParameters SpawnParameters;
@@ -31,17 +33,11 @@ void UGA_Fire::Fire()
 			PA->SetIsPredictedCopy(bIsPredicted);
 		}
 	};
-	// auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
-	// 	BulletClass,
-	// 	FTransform(Rotation, Location),
-	// 	Character,
-	// 	Character);
-	if (auto Bullet = GetWorld()->SpawnActor<ABaseBullet>(BulletClass, Location, Rotation, SpawnParameters))
+
+	if (SpawnBullet(BulletID, true, Location, Rotation))
 	{
-		Bullet->ActorsToIgnore.Add(Character);
-		// Bullet->FinishSpawning(FTransform(Rotation, Location));
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
-		Fire_Server(BulletID);
+		Fire_Server(BulletID, GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), Location, Rotation);
 		bool bFound;
 		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);
 		if (bFound)
@@ -58,34 +54,31 @@ void UGA_Fire::Fire()
 	}
 }
 
-void UGA_Fire::Fire_Server_Implementation(uint32 BulletID)
+void UGA_Fire::Fire_Server_Implementation(uint32 BulletID, float ClientTime, FVector Location, FRotator Rotation)
 {
-	FVector Location = Character->GetFirePointLocation();
-	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Instigator = Character;
-	SpawnParameters.Owner = Character;
-	bool bIsPredicted = false;
-	SpawnParameters.CustomPreSpawnInitalization = [bIsPredicted, BulletID](AActor* Actor)
+	auto DefaultBullet = BulletClass->GetDefaultObject<ABaseBullet>();
+	float InitialSpeed = DefaultBullet->MovementComponent->InitialSpeed;
+	float Radius = DefaultBullet->CollisionComponent->GetScaledSphereRadius();
+	FVector Direction = Rotation.Vector();
+
+	FVector Start = Location;;
+	FVector End = Start + Direction * InitialSpeed * (GetWorld()->GetTimeSeconds() - ClientTime);
+	if (Rewind(ClientTime, Start, End, Rotation, Radius))
 	{
-		// Do the ID init here, before BeginPlay & replication
-		if (auto PA = Cast<AClientPredictedActor>(Actor))
+		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
+		bool bFound;
+		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);
+		if (bFound)
 		{
-			PA->SetID(BulletID);
-			/// You should determine this value yourself based on whether this is the local creation, or the Server RPC
-			/// It just sets the "bIsPredictedCopy" internal variable which lets us differentiate on the local client
-			PA->SetIsPredictedCopy(bIsPredicted);
+			if (CurrentAmmo <= 0)
+			{
+				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+			}
 		}
-	};
-	// auto Bullet = GetWorld()->SpawnActorDeferred<ABaseBullet>(
-	// 	BulletClass,
-	// 	FTransform(Rotation, Location),
-	// 	Character,
-	// 	Character);
-	if (auto Bullet = GetWorld()->SpawnActor<ABaseBullet>(BulletClass, Location, Rotation, SpawnParameters))
+		return;
+	}
+	if (SpawnBullet(BulletID, false, End, Rotation))
 	{
-		Bullet->ActorsToIgnore.Add(Character);
-		// Bullet->FinishSpawning(FTransform(Rotation, Location));
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
 		bool bFound;
 		auto CurrentAmmo = Character->AbilitySystemComponent->GetGameplayAttributeValue(UCharactersAttributeSet::GetAmmoAttribute(), bFound);
@@ -101,6 +94,63 @@ void UGA_Fire::Fire_Server_Implementation(uint32 BulletID)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
+}
+
+bool UGA_Fire::Rewind(float ClientTime, FVector Start, FVector End, FRotator Rotation, float Radius)
+{
+	TMap<ADMLCharacter*, FSavedFrame> Characters;
+	for (TActorIterator<ADMLCharacter> It(GetWorld()); It; ++It)
+	{
+		FSavedFrame CurrentFrame;
+		CurrentFrame.Location = (*It)->GetActorLocation();
+		CurrentFrame.Timestamp = GetWorld()->GetTimeSeconds();
+		Characters.Add(*It, CurrentFrame);
+		(*It)->RewindToTime(ClientTime);
+	}
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(Character);
+	QueryParams.TraceTag = "RewindTrace";
+#if !UE_BUILD_SHIPPING
+	GetWorld()->DebugDrawTraceTag = TEXT("RewindTrace");
+#endif
+
+	auto bHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(Radius), QueryParams);
+	if (bHit)
+	{
+		if (auto Victim = Cast<ADMLCharacter>(HitResult.GetActor()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%s"), *BulletClass.GetDefaultObject()->DamageEffectClass->GetName()));
+			auto Context = Character->GetAbilitySystemComponent()->MakeEffectContext();
+			Character->GetAbilitySystemComponent()->BP_ApplyGameplayEffectToTarget(BulletClass.GetDefaultObject()->DamageEffectClass,
+				Victim->GetAbilitySystemComponent(), 1, Context);
+		}
+	}
+	for (auto CharacterFrame : Characters)
+	{
+		CharacterFrame.Key->SetActorLocation(CharacterFrame.Value.Location);
+	}
+	return bHit;
+}
+
+ABaseBullet* UGA_Fire::SpawnBullet(uint32 BulletID, bool bIsPredicted, FVector Location, FRotator Rotation)
+{
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = Character;
+	SpawnParameters.Owner = Character;
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(Character);
+	SpawnParameters.CustomPreSpawnInitalization = [bIsPredicted, BulletID, ActorsToIgnore](AActor* Actor)
+	{
+		if (auto PA = Cast<AClientPredictedActor>(Actor))
+		{
+			PA->SetID(BulletID);
+			PA->SetIsPredictedCopy(bIsPredicted);
+		}
+		if (auto Bullet = Cast<ABaseBullet>(Actor))
+			Bullet->ActorsToIgnore = ActorsToIgnore;
+	};
+	return GetWorld()->SpawnActor<ABaseBullet>(BulletClass, Location, Rotation, SpawnParameters);
 }
 
 FVector UGA_Fire::CalculateFireTargetLocation()

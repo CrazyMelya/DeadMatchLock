@@ -21,7 +21,11 @@ private:
 	void Fire();
 
 	UFUNCTION(Server, Reliable)
-	void Fire_Server(uint32 BulletID);
+	void Fire_Server(uint32 BulletID, float ClientTime, FVector Location, FRotator Rotation);
+
+	bool Rewind(float ClientTime, FVector Start, FVector End, FRotator Rotation, float Radius);
+
+	ABaseBullet* SpawnBullet(uint32 BulletID, bool bIsPredicted, FVector Location, FRotator Rotation);
 
 	FTimerHandle FireTimer;
 
