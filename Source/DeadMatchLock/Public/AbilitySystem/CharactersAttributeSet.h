@@ -114,6 +114,13 @@ public:
 	UFUNCTION()
 	virtual void OnRep_StaminaRecoveryRate(const FGameplayAttributeData& OldStaminaRecoveryRate);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_BaseFireTime)
+	FGameplayAttributeData BaseFireTime;
+	ATTRIBUTE_ACCESSORS(BaseFireTime);
+	
+	UFUNCTION()
+	virtual void OnRep_BaseFireTime(const FGameplayAttributeData& OldBaseFireTime);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_FireRate)
 	FGameplayAttributeData FireRate;
 	ATTRIBUTE_ACCESSORS(FireRate);

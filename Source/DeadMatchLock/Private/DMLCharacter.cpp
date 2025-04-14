@@ -2,6 +2,7 @@
 
 #include "DMLCharacter.h"
 
+#include "DMLCharacterMovementComponent.h"
 #include "DMLGameMode.h"
 #include "GamePlayerController.h"
 #include "Engine/LocalPlayer.h"
@@ -71,6 +72,8 @@ ADMLCharacter::ADMLCharacter()
 	WC_PlayerInfo->SetDrawAtDesiredSize(false);
 	WC_PlayerInfo->SetDrawSize(FVector2D(100.0f, 20.0f));
 	WC_PlayerInfo->SetWidgetClass(UPlayerInfo::StaticClass());
+
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
 UAbilitySystemComponent* ADMLCharacter::GetAbilitySystemComponent() const
@@ -162,6 +165,25 @@ void ADMLCharacter::ResetJumpState()
 	Super::ResetJumpState();
 
 	AbilitySystemComponent->BP_ApplyGameplayEffectToSelf(UGE_ResetJumpState::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+}
+
+bool ADMLCharacter::CanSlide()
+{
+	auto* MoveComp = Cast<UDMLCharacterMovementComponent>(GetCharacterMovement());
+	return MoveComp && MoveComp->CanSlide();
+}
+
+void ADMLCharacter::Slide()
+{
+	if (CanSlide())
+	{
+		Cast<UDMLCharacterMovementComponent>(GetCharacterMovement())->StartSlide();
+	}
+}
+
+void ADMLCharacter::StopSlide()
+{
+	Cast<UDMLCharacterMovementComponent>(GetCharacterMovement())->EndSlide();
 }
 
 void ADMLCharacter::Die_Implementation(AActor* Killer)

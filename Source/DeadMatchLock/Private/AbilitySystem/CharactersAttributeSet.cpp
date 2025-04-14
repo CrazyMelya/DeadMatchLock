@@ -56,6 +56,11 @@ void UCharactersAttributeSet::OnRep_StaminaRecoveryRate(const FGameplayAttribute
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, StaminaRecoveryRate, OldStaminaRecoveryRate);
 }
 
+void UCharactersAttributeSet::OnRep_BaseFireTime(const FGameplayAttributeData& OldBaseFireTime)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, StaminaRecoveryRate, OldBaseFireTime);
+}
+
 void UCharactersAttributeSet::OnRep_HealthRegen(const FGameplayAttributeData& OldHealthRegen)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharactersAttributeSet, HealthRegen, OldHealthRegen);
@@ -115,6 +120,7 @@ void UCharactersAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeP
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Stamina, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxStamina, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, JumpMaxCount, COND_None, REPNOTIFY_OnChanged);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, BaseFireTime, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, FireRate, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, WeaponDamage, COND_None, REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, AirJumps, COND_None, REPNOTIFY_OnChanged);

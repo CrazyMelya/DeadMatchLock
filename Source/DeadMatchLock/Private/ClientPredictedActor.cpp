@@ -18,7 +18,6 @@ void AClientPredictedActor::BeginPlay()
 {
 	if (IsLocallyOwned() && GetWorld()->GetNetMode() == NM_Client)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("Bullet ID = %u"), ID));
 		if (auto PC = Cast<AGamePlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld())))
 		{
 			// If either of these paths matches us up with our counterpart, will call LinkReplicatedWithPredicted

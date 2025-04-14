@@ -130,7 +130,19 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float SlideActivationSpeed = 700.0f;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void Slide();
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void StopSlide();
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	virtual bool CanSlide();
+
 private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void PauseMontage();

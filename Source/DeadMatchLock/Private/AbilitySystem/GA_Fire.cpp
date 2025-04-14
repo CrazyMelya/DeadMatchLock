@@ -19,6 +19,7 @@ void UGA_Fire::Fire()
 	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
 	if (SpawnBullet(true, BulletID, Location, Rotation))
 	{
+		PlayAnimation();
 		if (!HasAuthority(&CurrentActivationInfo))
 			Fire_Server(BulletID, Location, Rotation, GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
@@ -37,6 +38,7 @@ void UGA_Fire::Fire_Server_Implementation(uint32 BulletID, FVector Location, FRo
 	Location = End;
 	if (RewindAndTrace(ClientTime, Start, End, Radius) || SpawnBullet(false, BulletID, Location, Rotation))
 	{
+		PlayAnimation();
 		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
 	}
 }
@@ -135,7 +137,6 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		if (Character)
 		{
 			Fire();
-			PlayAnimation();
 		}
 		else
 			CancelAbility(Handle, ActorInfo, ActivationInfo, true);

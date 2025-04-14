@@ -138,15 +138,12 @@ void AGamePlayerController::SetPredictedActor(uint32 ID, AClientPredictedActor* 
 
 void AGamePlayerController::SetPredictedActorReplicatedActor(uint32 ID, AClientPredictedActor* ReplicatedActor)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, FString::Printf(TEXT("Bullet ID is: %u"), ID));
 	if (auto pInfo = PredictedActors.FindByPredicate([ID](const FPredictedActorInfo& Info)
 	{
 		return Info.ClientActorID == ID;
 	}))
 	{
-		// check (!pInfo->ReplicatedActor.IsValid());
-		if (pInfo->ReplicatedActor.IsValid())
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Predicted Actor Replicated");
+		check (!pInfo->ReplicatedActor.IsValid());
 		pInfo->ReplicatedActor = ReplicatedActor;
 
 		// If both are valid, link up
