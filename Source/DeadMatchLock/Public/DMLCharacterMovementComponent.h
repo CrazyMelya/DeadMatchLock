@@ -22,19 +22,66 @@ UCLASS()
 class DEADMATCHLOCK_API UDMLCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
+	class DEADMATCHLOCK_API FDMLSavedMove_Character : public FSavedMove_Character
+	{
+	public:
+		uint8 bSavedWantsToSlide : 1;
+		
 
+		virtual void Clear() override
+		{
+			FSavedMove_Character::Clear();
+			bSavedWantsToSlide = false;
+		}
+
+		virtual uint8 GetCompressedFlags() const override
+		{
+			uint8 Result = FSavedMove_Character::GetCompressedFlags();
+			if (bSavedWantsToSlide)
+			{
+				Result |= FLAG_Custom_0;
+			}
+			return Result;
+		}
+
+		virtual void SetMoveFor(ACharacter* Character, float InDeltaTime, FVector const& NewAccel, FNetworkPredictionData_Client_Character & ClientData) override
+		{
+			FSavedMove_Character::SetMoveFor(Character, InDeltaTime, NewAccel, ClientData);
+			
+			bSavedWantsToSlide = Cast<ADMLCharacter>(Character)->bWantsToSlide;
+		}
+	};
+
+	class FNetworkPredictionData_Client_Slide : public FNetworkPredictionData_Client_Character
+	{
+	public:
+		FNetworkPredictionData_Client_Slide(const UCharacterMovementComponent& ClientMovement)
+			: FNetworkPredictionData_Client_Character(ClientMovement)
+		{
+		}
+
+		virtual FSavedMovePtr AllocateNewMove() override
+		{
+			return MakeShared<FDMLSavedMove_Character>();
+		}
+	};
+	
 	virtual bool CanCrouchInCurrentState() const override;
 
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 
+	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
+
 	void PhysSlide(float DeltaTime, int32 Iterations);
 	
-	bool bWantsSliding = false;
-
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 	
+	bool bIsSliding = false;
+
+	float FloorSlopeAngle;
+
 public:
-	FVector SlideInput;
+	bool bWantsToSlide = false;
 	
 	void StartSlide();
 
@@ -42,12 +89,6 @@ public:
 
 	bool CanSlide();
 
-	bool bIsSliding = false;
-	
-	FVector SlideDirection;
-	
-	float SlideSpeed = 0.f;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slide")
 	float MinSlideActivationSpeed = 600.f;
 	
@@ -58,73 +99,24 @@ public:
 	float SlideDeceleration = 200.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slide")
-	float SlideControlFactor = 0.005f;
-
+	float SlideControlFactor = 0.5f;
+	
+	// Min slope angle that allows slide
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slide")
 	float MinSlideSlopeAngle = 10.0f;
-};
 
+	// Max angle between slope direction and velocity that allows slide
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slide")
+	float MaxSlideVelocityAngle = 45.0f;
 
-class DEADMATCHLOCK_API FSavedMove_Slide : public FSavedMove_Character
-{
-public:
-	FVector SavedSlideInput;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slide")
+	bool AllowSlideUp = false;
 
-	virtual void Clear() override
-	{
-		FSavedMove_Character::Clear();
-		SavedSlideInput = FVector::ZeroVector;
-	}
+	virtual bool IsMovingOnGround() const override;
 
-	virtual uint8 GetCompressedFlags() const override
-	{
-		uint8 Result = FSavedMove_Character::GetCompressedFlags();
-		// Добавляй флаги если нужно
-		return Result;
-	}
+	void CalcSlideVelocity(float DeltaTime);
 
-	virtual bool CanCombineWith(const FSavedMovePtr& NewMove, ACharacter* Character, float MaxDelta) const override
-	{
-		// Если SlideInput отличается — не комбайнируем
-		if (SavedSlideInput != ((FSavedMove_Slide*)&NewMove)->SavedSlideInput)
-			return false;
+	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
 
-		return FSavedMove_Character::CanCombineWith(NewMove, Character, MaxDelta);
-	}
-
-	virtual void SetMoveFor(ACharacter* Character, float InDeltaTime, FVector const& NewAccel, FNetworkPredictionData_Client_Character & ClientData) override
-	{
-		FSavedMove_Character::SetMoveFor(Character, InDeltaTime, NewAccel, ClientData);
-		
-		if (const auto Char = Cast<ADMLCharacter>(Character))
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("SlideInput %f, %f"), SavedSlideInput.X, SavedSlideInput.Y));
-			SavedSlideInput = Char->GetLastMovementInputVector().GetSafeNormal2D(); // Получаешь input направление
-		}
-	}
-
-	virtual void PrepMoveFor(ACharacter* Character) override
-	{
-		FSavedMove_Character::PrepMoveFor(Character);
-
-		if (auto* MoveComp = Cast<UDMLCharacterMovementComponent>(Character->GetCharacterMovement()))
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Green, FString::Printf(TEXT("SlideInput %f, %f"), SavedSlideInput.X, SavedSlideInput.Y));
-			MoveComp->SlideInput = SavedSlideInput;
-		}
-	}
-};
-
-class FNetworkPredictionData_Client_Slide : public FNetworkPredictionData_Client_Character
-{
-public:
-	FNetworkPredictionData_Client_Slide(const UCharacterMovementComponent& ClientMovement)
-		: FNetworkPredictionData_Client_Character(ClientMovement)
-	{
-	}
-
-	virtual FSavedMovePtr AllocateNewMove() override
-	{
-		return MakeShared<FSavedMove_Slide>();
-	}
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 };

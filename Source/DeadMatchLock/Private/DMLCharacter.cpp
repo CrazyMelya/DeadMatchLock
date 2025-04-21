@@ -12,11 +12,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
-#include "InputActionValue.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "AbilitySystem/Effects/GE_ResetJumpState.h"
-#include "Binding/States/WidgetStateRegistration.h"
 #include "UI/PlayerInfo.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -46,7 +43,6 @@ ADMLCharacter::ADMLCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -175,15 +171,21 @@ bool ADMLCharacter::CanSlide()
 
 void ADMLCharacter::Slide()
 {
-	if (CanSlide())
+	bWantsToSlide = true;
+	auto MoveComp = GetCharacterMovement<UDMLCharacterMovementComponent>();
+	MoveComp->bWantsToSlide = true;
+	if (MoveComp->CanSlide())
 	{
-		Cast<UDMLCharacterMovementComponent>(GetCharacterMovement())->StartSlide();
+		MoveComp->StartSlide();
 	}
 }
 
 void ADMLCharacter::StopSlide()
 {
-	Cast<UDMLCharacterMovementComponent>(GetCharacterMovement())->EndSlide();
+	auto MoveComp = GetCharacterMovement<UDMLCharacterMovementComponent>();
+	bWantsToSlide = false;
+	MoveComp->bWantsToSlide = false;
+	MoveComp->EndSlide();
 }
 
 void ADMLCharacter::Die_Implementation(AActor* Killer)

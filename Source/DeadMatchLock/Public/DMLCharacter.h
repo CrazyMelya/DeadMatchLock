@@ -131,9 +131,6 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float SlideActivationSpeed = 700.0f;
-
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void Slide();
 
@@ -142,6 +139,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	virtual bool CanSlide();
+
+	bool bWantsToSlide;
 
 private:
 	UFUNCTION(NetMulticast, Unreliable)
