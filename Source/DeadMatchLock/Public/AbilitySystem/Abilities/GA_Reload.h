@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/DMLDurationGameplayAbility.h"
+#include "AbilitySystem/Abilities/DMLDurationGameplayAbility.h"
 #include "GA_Reload.generated.h"
 
 /**

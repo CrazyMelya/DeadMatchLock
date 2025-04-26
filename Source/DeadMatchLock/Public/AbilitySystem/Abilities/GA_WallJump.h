@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/DMLGameplayAbility.h"
+#include "AbilitySystem/Abilities/DMLGameplayAbility.h"
 #include "GA_WallJump.generated.h"
 
 /**

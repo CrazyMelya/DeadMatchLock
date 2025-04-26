@@ -149,6 +149,11 @@ bool UDMLCharacterMovementComponent::CanSlide()
 	return FloorSlopeAngle >= MinSlideSlopeAngle && SlideVelocityAngle <= MaxSlideVelocityAngle;
 }
 
+bool UDMLCharacterMovementComponent::GetIsSliding() const
+{
+	return bIsSliding;
+}
+
 bool UDMLCharacterMovementComponent::IsMovingOnGround() const
 {
 	return (MovementMode == MOVE_Walking || MovementMode == MOVE_NavWalking || (MovementMode == MOVE_Custom && CustomMovementMode == CMOVE_Slide)) && UpdatedComponent;

@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GA_Roll.h"
+#include "AbilitySystem/Abilities/GA_Roll.h"
 
 #include "DMLCharacter.h"
-#include "AbilitySystem/GE_StaminaCost.h"
+#include "AbilitySystem/Effects/GE_StaminaCost.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
 #include "GameFramework/CharacterMovementComponent.h"
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/DMLGameplayAbility.h"
+#include "AbilitySystem/Abilities/DMLGameplayAbility.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/CharactersAttributeSet.h"

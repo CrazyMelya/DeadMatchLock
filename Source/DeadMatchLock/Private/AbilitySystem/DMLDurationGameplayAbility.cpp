@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/DMLDurationGameplayAbility.h"
+#include "AbilitySystem/Abilities/DMLDurationGameplayAbility.h"
 
 void UDMLDurationGameplayAbility::OnTimerCompleted_Implementation()
 {

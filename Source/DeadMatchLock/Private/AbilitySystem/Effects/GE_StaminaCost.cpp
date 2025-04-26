@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GE_StaminaCost.h"
+#include "AbilitySystem/Effects/GE_StaminaCost.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 
 UGE_StaminaCost::UGE_StaminaCost(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)

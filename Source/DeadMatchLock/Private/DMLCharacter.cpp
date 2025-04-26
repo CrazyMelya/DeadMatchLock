@@ -69,6 +69,9 @@ ADMLCharacter::ADMLCharacter()
 	WC_PlayerInfo->SetDrawSize(FVector2D(100.0f, 20.0f));
 	WC_PlayerInfo->SetWidgetClass(UPlayerInfo::StaticClass());
 
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	Weapon->SetupAttachment(GetMesh(), FName("Weapon"));
+
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
@@ -344,6 +347,9 @@ void ADMLCharacter::UpdateSavedFrames()
 	FSavedFrame NewFrame;
 	NewFrame.Location = GetActorLocation();
 	NewFrame.Timestamp = GetWorld()->GetTimeSeconds();
+	NewFrame.Rotation = GetActorRotation();
+	NewFrame.CapsuleRadius = GetCapsuleComponent()->GetUnscaledCapsuleRadius();
+	NewFrame.CapsuleHalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 
 	FrameHistory.Add(NewFrame);
 	
@@ -362,6 +368,9 @@ void ADMLCharacter::RewindToTime(float Time)
 			if (FrameHistory[i].Timestamp <= Time)
 			{
 				SetActorLocation(FrameHistory[i].Location);
+				SetActorRotation(FrameHistory[i].Rotation);
+				GetCapsuleComponent()->SetCapsuleRadius(FrameHistory[i].CapsuleRadius);
+				GetCapsuleComponent()->SetCapsuleHalfHeight(FrameHistory[i].CapsuleHalfHeight);
 				break;
 			}
 		}

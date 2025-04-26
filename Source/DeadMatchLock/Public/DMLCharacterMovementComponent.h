@@ -89,6 +89,9 @@ public:
 
 	bool CanSlide();
 
+	UFUNCTION(BlueprintPure, Category = "Slide")
+	bool GetIsSliding() const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slide")
 	float MinSlideActivationSpeed = 600.f;
 	

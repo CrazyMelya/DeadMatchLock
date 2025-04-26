@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GA_Fire.h"
+#include "AbilitySystem/Abilities/GA_Fire.h"
 
 #include "AbilitySystemComponent.h"
 #include "ClientPredictedActor.h"
@@ -9,6 +9,7 @@
 #include "EngineUtils.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -50,6 +51,9 @@ bool UGA_Fire::RewindAndTrace(float ClientTime, FVector Start, FVector End, floa
 	{
 		FSavedFrame CurrentFrame;
 		CurrentFrame.Location = (*It)->GetActorLocation();
+		CurrentFrame.Rotation = (*It)->GetActorRotation();
+		CurrentFrame.CapsuleRadius = (*It)->GetCapsuleComponent()->GetUnscaledCapsuleRadius();
+		CurrentFrame.CapsuleHalfHeight = (*It)->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 		CurrentFrame.Timestamp = GetWorld()->GetTimeSeconds();
 		Characters.Add(*It, CurrentFrame);
 		(*It)->RewindToTime(ClientTime);
@@ -76,6 +80,9 @@ bool UGA_Fire::RewindAndTrace(float ClientTime, FVector Start, FVector End, floa
 	for (auto CharacterFrame : Characters)
 	{
 		CharacterFrame.Key->SetActorLocation(CharacterFrame.Value.Location);
+		CharacterFrame.Key->SetActorRotation(CharacterFrame.Value.Rotation);
+		CharacterFrame.Key->GetCapsuleComponent()->SetCapsuleRadius(CharacterFrame.Value.CapsuleRadius);
+		CharacterFrame.Key->GetCapsuleComponent()->SetCapsuleHalfHeight(CharacterFrame.Value.CapsuleHalfHeight);
 	}
 	return bHit;
 }

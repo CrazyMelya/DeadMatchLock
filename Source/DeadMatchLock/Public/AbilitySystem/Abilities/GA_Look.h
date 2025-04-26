@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DMLCharacter.h"
-#include "AbilitySystem/DMLGameplayAbility.h"
+#include "AbilitySystem/Abilities/DMLGameplayAbility.h"
 #include "GA_Look.generated.h"
 
 /**

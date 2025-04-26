@@ -1,12 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GA_Move.h"
+#include "AbilitySystem/Abilities/GA_Move.h"
 
-// UGA_Move::UGA_Move(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-// {
-// 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-// }
 
 void UGA_Move::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
                                const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)

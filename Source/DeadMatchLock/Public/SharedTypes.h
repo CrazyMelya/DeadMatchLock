@@ -87,7 +87,10 @@ struct FCharacterData: public FTableRowBase
 
 struct FSavedFrame
 {
-	FVector Location;
 	float Timestamp;
+	FVector Location;
+	FRotator Rotation;
+	float CapsuleRadius;
+	float CapsuleHalfHeight;
 };
 

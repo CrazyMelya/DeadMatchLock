@@ -44,16 +44,19 @@ class ADMLCharacter : public ACharacter, public IAbilitySystemInterface
 	UInputMappingContext* DefaultMappingContext;
 
 	TArray<FSavedFrame> FrameHistory;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* Weapon;
 
 	UFUNCTION()
 	void UpdateSavedFrames();
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
-	UDMLAbilitySystemComponent* AbilitySystemComponent;
-	
 	ADMLCharacter();
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities", meta = (AllowPrivateAccess = "true"))
+	UDMLAbilitySystemComponent* AbilitySystemComponent;
+
 	void RewindToTime(float Time);
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;

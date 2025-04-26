@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseBullet.h"
 #include "DMLCharacter.h"
-#include "AbilitySystem/DMLGameplayAbility.h"
+#include "AbilitySystem/Abilities/DMLGameplayAbility.h"
 #include "GA_Fire.generated.h"
 
 /**

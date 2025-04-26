@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GA_Reload.h"
+#include "AbilitySystem/Abilities/GA_Reload.h"
 
 #include "AbilitySystemComponent.h"
-#include "SharedTypes.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 
 void UGA_Reload::OnTimerCompleted_Implementation()

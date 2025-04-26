@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DMLCharacter.h"
-#include "AbilitySystem/DMLGameplayAbility.h"
+#include "AbilitySystem/Abilities/DMLGameplayAbility.h"
 #include "GA_Move.generated.h"
 
 /**
@@ -14,8 +14,6 @@ UCLASS()
 class DEADMATCHLOCK_API UGA_Move : public UDMLGameplayAbility
 {
 	GENERATED_BODY()
-
-	// UGA_Move(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };
