@@ -70,7 +70,9 @@ ADMLCharacter::ADMLCharacter()
 	WC_PlayerInfo->SetWidgetClass(UPlayerInfo::StaticClass());
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	Weapon->SetupAttachment(GetMesh(), FName("Weapon"));
+	Weapon->SetupAttachment(GetMesh(), FName("weapon_r"));
+	Weapon->SetRelativeRotation(FRotator(0.0f, 95.0f, -5.0f));
+	Weapon->SetRelativeLocation(FVector(-6.5f, 1.6f, 1.6f));
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
