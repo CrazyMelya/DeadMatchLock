@@ -10,7 +10,7 @@ public class DeadMatchLock : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"AdvancedWidgets",
-			"OnlineServicesNull"
+			"OnlineServicesNull", "AnimGraphRuntime", "AnimGraphRuntime"
 		});
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
