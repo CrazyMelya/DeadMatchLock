@@ -5,6 +5,7 @@
 
 #include "AbilitySystemGlobals.h"
 #include "DMLCharacter.h"
+#include "DMLCharacterMovementComponent.h"
 #include "Misc/DataValidation.h"
 
 UDMLAnimInstance::UDMLAnimInstance(const FObjectInitializer& ObjectInitializer)
@@ -41,5 +42,19 @@ void UDMLAnimInstance::NativeInitializeAnimation()
 			InitializeWithAbilitySystem(ASC);
 		}
 	}
+}
+
+void UDMLAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+	const ADMLCharacter* Character = Cast<ADMLCharacter>(GetOwningActor());
+	if (!Character)
+	{
+		return;
+	}
+
+	UDMLCharacterMovementComponent* CharMoveComp = CastChecked<UDMLCharacterMovementComponent>(Character->GetCharacterMovement());
+	const FLyraCharacterGroundInfo& GroundInfo = CharMoveComp->GetGroundInfo();
+	GroundDistance = GroundInfo.GroundDistance;
 }
 

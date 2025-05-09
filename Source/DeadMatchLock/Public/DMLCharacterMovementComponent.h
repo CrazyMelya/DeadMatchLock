@@ -18,6 +18,25 @@ enum ECustomMovementMode
 	CMOVE_Slide = 0,
 };
 
+USTRUCT(BlueprintType)
+struct FDMLCharacterGroundInfo
+{
+	GENERATED_BODY()
+
+	FDMLCharacterGroundInfo()
+		: LastUpdateFrame(0)
+		, GroundDistance(0.0f)
+	{}
+
+	uint64 LastUpdateFrame;
+
+	UPROPERTY(BlueprintReadOnly)
+	FHitResult GroundHitResult;
+
+	UPROPERTY(BlueprintReadOnly)
+	float GroundDistance;
+};
+
 UCLASS()
 class DEADMATCHLOCK_API UDMLCharacterMovementComponent : public UCharacterMovementComponent
 {
@@ -122,4 +141,7 @@ public:
 	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
+
+protected:
+	FDMLCharacterGroundInfo CachedGroundInfo;
 };
