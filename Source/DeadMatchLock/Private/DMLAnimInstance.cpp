@@ -54,7 +54,7 @@ void UDMLAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 
 	UDMLCharacterMovementComponent* CharMoveComp = CastChecked<UDMLCharacterMovementComponent>(Character->GetCharacterMovement());
-	const FLyraCharacterGroundInfo& GroundInfo = CharMoveComp->GetGroundInfo();
+	const FDMLCharacterGroundInfo& GroundInfo = CharMoveComp->GetGroundInfo();
 	GroundDistance = GroundInfo.GroundDistance;
 }
 

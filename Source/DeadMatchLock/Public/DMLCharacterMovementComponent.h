@@ -142,6 +142,9 @@ public:
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Ground")
+	const FDMLCharacterGroundInfo& GetGroundInfo();
+
 protected:
 	FDMLCharacterGroundInfo CachedGroundInfo;
 };
