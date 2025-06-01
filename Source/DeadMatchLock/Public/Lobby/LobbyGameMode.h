@@ -54,6 +54,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float SelectionTime = 30;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float FinalCountdownTime = 10;
+
 	UFUNCTION(BlueprintImplementableEvent, DisplayName="StartGame")
 	void BP_StartGame();
 

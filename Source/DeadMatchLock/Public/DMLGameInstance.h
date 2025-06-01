@@ -14,13 +14,20 @@ class DEADMATCHLOCK_API UDMLGameInstance : public UAdvancedFriendsGameInstance
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
-	void SetNumPlayers(int32 InPlayersNum) { NumPlayers = InPlayersNum; };
+	void SetNumPlayers(int32 InNumPlayers) { NumPlayers = InNumPlayers; };
 	
-	UFUNCTION()
 	int32 GetNumPlayers() const { return NumPlayers; };
+
+	UFUNCTION(BlueprintCallable, Category = "DMLGameInstance")
+	void SetNumKills(int32 InNumKills) { NumKills = InNumKills; };
+
+	UFUNCTION(BlueprintCallable, Category = "DMLGameInstance")
+	int32 GetNumKills() const { return NumKills; };
 
 private:
 	UPROPERTY()
 	int32 NumPlayers = 0;
+
+	UPROPERTY()
+	int32 NumKills = 5;
 };

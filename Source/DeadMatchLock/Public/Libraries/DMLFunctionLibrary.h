@@ -6,6 +6,10 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DMLFunctionLibrary.generated.h"
 
+class UDMLGameInstance;
+class ADMLGameMode;
+class ADMLMainMenuGameMode;
+class ALobbyGameMode;
 /**
  * 
  */
@@ -16,5 +20,16 @@ class DEADMATCHLOCK_API UDMLFunctionLibrary : public UBlueprintFunctionLibrary
 	
 public:
 	static FVector RotateTowards(FVector From, FVector To, float MaxAngleDegrees = 180.0f);
-	
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, meta=(WorldContext="WorldContextObject"))
+	static ALobbyGameMode* GetLobbyGameMode(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, meta=(WorldContext="WorldContextObject"))
+	static ADMLMainMenuGameMode* GetMainMenuGameMode(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, meta=(WorldContext="WorldContextObject"))
+	static ADMLGameMode* GetDMLGameMode(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, meta=(WorldContext="WorldContextObject"))
+	static UDMLGameInstance* GetDMLGameInstance(const UObject* WorldContextObject);
 };

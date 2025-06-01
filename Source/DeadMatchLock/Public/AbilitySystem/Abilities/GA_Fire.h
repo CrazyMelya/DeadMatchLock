@@ -11,6 +11,21 @@
 /**
  * 
  */
+USTRUCT()
+struct FBulletData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	uint32 BulletID;
+
+	UPROPERTY()
+	FVector Location;
+
+	UPROPERTY()
+	FRotator Rotation;
+};
+
 UCLASS(Blueprintable)
 class DEADMATCHLOCK_API UGA_Fire : public UDMLGameplayAbility
 {
@@ -29,17 +44,26 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+	virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
 	
 	UFUNCTION(BlueprintCallable)
 	void Fire();
 
 	UFUNCTION(Server, Reliable)
-	void Fire_Server(uint32 BulletID, FVector Location, FRotator Rotation, float ClientTime);
+	void Fire_Server(const TArray<FBulletData>& BulletDataArray, const float ClientTime);
 
-	bool RewindAndTrace(float ClientTime, FVector Start, FVector End, float Radius) const;
+	bool RewindTrace(const FVector& Start, const FVector& End, float Radius) const;
 
 	ABaseBullet* SpawnBullet(bool bIsPredicted, uint32 InBulletID, const FVector& Location, const FRotator& Rotation) const;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayAnimation();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ApplyIncreaseSpreadEffect();
+
+	float GetSpreadAngle() const;
+
+	int GetBulletsPerShot() const;
 };

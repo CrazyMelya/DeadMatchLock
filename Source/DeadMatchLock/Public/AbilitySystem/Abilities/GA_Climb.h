@@ -16,6 +16,7 @@ class DEADMATCHLOCK_API UGA_Climb : public UDMLGameplayAbility
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Climb")
 	float MinClimbHeight = 40.0f;
@@ -24,5 +25,5 @@ protected:
 	float MaxClimbHeight = 100.0f;
 
 	UFUNCTION(BlueprintCallable)
-	bool SearchWall();
+	bool SearchWall() const;
 };

@@ -37,6 +37,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Gameplay")
 	int32 KillsToWin = 5;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float GameStartTime = 10;
+
 private:
 	UPROPERTY()
 	TMap<AGamePlayerController*, FTimerHandle> RespawnTimers;
@@ -48,10 +51,10 @@ private:
 	void StartMatchTimerTick();
 
 	UFUNCTION()
-	void GameTimerTick();
+	void GameTimerTick() const;
 
 	UFUNCTION()
-	void LeavingMapTimerTick();
+	void LeavingMapTimerTick() const;
 };
 
 
