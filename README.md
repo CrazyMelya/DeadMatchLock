@@ -1,6 +1,6 @@
 # DeadMatchLock
 
-🌐 end[English](#english-version) | 🇷🇺 [Русский](#русская-версия)
+🌐 eng [English](#english-version) | 🇷🇺 [Русский](#русская-версия)
 
 ---
 
