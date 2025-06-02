@@ -1,12 +1,12 @@
 # DeadMatchLock
 
-🌐 [English](#english-version) | 🇷🇺 [Русский](#русская-версия)
+🌐 end[English](#english-version) | 🇷🇺 [Русский](#русская-версия)
 
 ---
 
 ## English Version
 
-**DeadMatchLock** is a fast-paced **deathmatch shooter** inspired by the mechanics of *Deadlock*.
+**DeadMatchLock** - an experimental deathmatch shooter with roguelike elements, inspired by the mechanics of Deadlock.
 
 Players choose from a roster of **heroes**, each with unique **abilities** and **attributes** that **level up during the match**.
 
