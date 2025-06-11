@@ -26,7 +26,7 @@ void UBaseLobbyUI::ToggleReadyState()
 }
 
 void UBaseLobbyUI::LeaveLobby()
- {
+{
 	PlayerController->LeaveLobby();
 }
 

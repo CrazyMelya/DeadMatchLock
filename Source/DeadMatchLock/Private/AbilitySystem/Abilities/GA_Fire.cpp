@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "ClientPredictedActor.h"
 #include "DMLCharacter.h"
+#include "DMLCharacterMovementComponent.h"
 #include "EngineUtils.h"
 #include "AbilitySystem/CharactersAttributeSet.h"
 #include "Camera/CameraComponent.h"
@@ -15,36 +16,27 @@
 
 void UGA_Fire::Fire()
 {
-	uint32 BulletID = AClientPredictedActor::GenerateClientID(Character);
-	FVector Location = Character->GetFirePointLocation();
-	FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
-	if (SpawnBullet(true, BulletID, Location, Rotation))
+	TArray<FBulletData> BulletDataArray;
+	for (int i = 0; i < GetBulletsPerShot(); i++)
 	{
-		PlayAnimation();
-		if (!HasAuthority(&CurrentActivationInfo))
-			Fire_Server(BulletID, Location, Rotation, GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
-		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
+		FBulletData BulletData;
+		BulletData.BulletID = AClientPredictedActor::GenerateClientID(Character);
+		BulletData.Location = Character->GetFirePointLocation();
+		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Character->GetFirePointLocation(), CalculateFireTargetLocation());
+		FVector Direction = Rotation.Vector();
+		Direction = FMath::VRandCone(Direction, FMath::DegreesToRadians(GetSpreadAngle()));
+		BulletData.Rotation = Direction.Rotation();
+		BulletDataArray.Add(BulletData);
+		SpawnBullet(true, BulletData.BulletID, BulletData.Location, BulletData.Rotation);
 	}
+	if (!HasAuthority(&CurrentActivationInfo))
+		Fire_Server(BulletDataArray, GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
+	PlayAnimation();
+	ApplyIncreaseSpreadEffect();
+	CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
 }
 
-void UGA_Fire::Fire_Server_Implementation(uint32 BulletID, FVector Location, FRotator Rotation, float ClientTime)
-{
-	auto DefaultBullet = BulletClass->GetDefaultObject<ABaseBullet>();
-	float InitialSpeed = DefaultBullet->MovementComponent->InitialSpeed;
-	float Radius = DefaultBullet->CollisionComponent->GetScaledSphereRadius();
-	FVector Direction = Rotation.Vector();
-
-	FVector Start = Location;;
-	FVector End = Start + Direction * InitialSpeed * (GetWorld()->GetTimeSeconds() - ClientTime);
-	Location = End;
-	if (RewindAndTrace(ClientTime, Start, End, Radius) || SpawnBullet(false, BulletID, Location, Rotation))
-	{
-		PlayAnimation();
-		CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
-	}
-}
-
-bool UGA_Fire::RewindAndTrace(float ClientTime, FVector Start, FVector End, float Radius) const
+void UGA_Fire::Fire_Server_Implementation(const TArray<FBulletData>& BulletDataArray, const float ClientTime)
 {
 	TMap<ADMLCharacter*, FSavedFrame> Characters;
 	for (TActorIterator<ADMLCharacter> It(GetWorld()); It; ++It)
@@ -58,6 +50,33 @@ bool UGA_Fire::RewindAndTrace(float ClientTime, FVector Start, FVector End, floa
 		Characters.Add(*It, CurrentFrame);
 		(*It)->RewindToTime(ClientTime);
 	}
+	const auto DefaultBullet = BulletClass->GetDefaultObject<ABaseBullet>();
+	const float InitialSpeed = DefaultBullet->MovementComponent->InitialSpeed;
+	const float Radius = DefaultBullet->CollisionComponent->GetScaledSphereRadius();
+	for (auto BulletData : BulletDataArray)
+	{
+		const FVector Direction = BulletData.Rotation.Vector();
+		const FVector Start = BulletData.Location;;
+		const FVector End = Start + Direction * InitialSpeed * (GetWorld()->GetTimeSeconds() - ClientTime);
+		if (!RewindTrace(Start, End, Radius))
+		{
+			SpawnBullet(false, BulletData.BulletID, End, BulletData.Rotation);
+		}
+	}
+	for (auto CharacterFrame : Characters)
+	{
+		CharacterFrame.Key->SetActorLocation(CharacterFrame.Value.Location);
+		CharacterFrame.Key->SetActorRotation(CharacterFrame.Value.Rotation);
+		CharacterFrame.Key->GetCapsuleComponent()->SetCapsuleRadius(CharacterFrame.Value.CapsuleRadius);
+		CharacterFrame.Key->GetCapsuleComponent()->SetCapsuleHalfHeight(CharacterFrame.Value.CapsuleHalfHeight);
+	}
+	ApplyIncreaseSpreadEffect();
+	PlayAnimation();
+	CommitAbilityCost(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo);
+}
+
+bool UGA_Fire::RewindTrace(const FVector& Start, const FVector& End, float Radius) const
+{
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(Character);
@@ -76,13 +95,6 @@ bool UGA_Fire::RewindAndTrace(float ClientTime, FVector Start, FVector End, floa
 			Character->GetAbilitySystemComponent()->BP_ApplyGameplayEffectToTarget(BulletClass.GetDefaultObject()->DamageEffectClass,
 				Victim->GetAbilitySystemComponent(), 1, Context);
 		}
-	}
-	for (auto CharacterFrame : Characters)
-	{
-		CharacterFrame.Key->SetActorLocation(CharacterFrame.Value.Location);
-		CharacterFrame.Key->SetActorRotation(CharacterFrame.Value.Rotation);
-		CharacterFrame.Key->GetCapsuleComponent()->SetCapsuleRadius(CharacterFrame.Value.CapsuleRadius);
-		CharacterFrame.Key->GetCapsuleComponent()->SetCapsuleHalfHeight(CharacterFrame.Value.CapsuleHalfHeight);
 	}
 	return bHit;
 }
@@ -105,6 +117,16 @@ ABaseBullet* UGA_Fire::SpawnBullet(bool bIsPredicted, uint32 InBulletID, const F
 			Bullet->ActorsToIgnore = ActorsToIgnore;
 	};
 	return GetWorld()->SpawnActor<ABaseBullet>(BulletClass, Location, Rotation, SpawnParameters);
+}
+
+float UGA_Fire::GetSpreadAngle() const
+{
+	return GetAbilitySystemComponentFromActorInfo()->GetNumericAttribute(UCharactersAttributeSet::GetSpreadAttribute());
+}
+
+int UGA_Fire::GetBulletsPerShot() const
+{
+	return GetAbilitySystemComponentFromActorInfo()->GetNumericAttribute(UCharactersAttributeSet::GetBulletsPerShotAttribute());
 }
 
 FVector UGA_Fire::CalculateFireTargetLocation() const
@@ -148,4 +170,11 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		else
 			CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
+}
+
+void UGA_Fire::ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (!Character->GetCharacterMovement<UDMLCharacterMovementComponent>()->GetIsSliding())
+		Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
 }

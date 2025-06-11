@@ -10,6 +10,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerStart.h"
+#include "Libraries/DMLFunctionLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 
 ADMLGameMode::ADMLGameMode()
@@ -129,11 +130,11 @@ APawn* ADMLGameMode::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, 
 void ADMLGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
 	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
-	if (auto GameInstance = Cast<UDMLGameInstance>(GetWorld()->GetGameInstance()))
+	if (auto GameInstance = UDMLFunctionLibrary::GetDMLGameInstance(this))
 	{
 		if (NumPlayers >= GameInstance->GetNumPlayers())
 		{
-			DMLGameState->GameTime = 3;
+			DMLGameState->GameTime = GameStartTime;
 			GetWorld()->GetTimerManager().SetTimer(GameTimer, this, &ThisClass::StartMatchTimerTick, 1.0f, true);
 		}
 	}
@@ -147,6 +148,11 @@ void ADMLGameMode::HandleSeamlessTravelPlayer(AController*& C)
 void ADMLGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (auto GameInstance = UDMLFunctionLibrary::GetDMLGameInstance(this))
+	{
+		KillsToWin = GameInstance->GetNumKills();
+	}
 }
 
 void ADMLGameMode::InitGameState()
@@ -160,7 +166,7 @@ void ADMLGameMode::HandleMatchHasEnded()
 {
 	Super::HandleMatchHasEnded();
 	GetWorld()->GetTimerManager().ClearTimer(GameTimer);
-	DMLGameState->GameTime = 40;
+	DMLGameState->GameTime = 20;
 	GetWorld()->GetTimerManager().SetTimer(GameTimer, this, &ThisClass::LeavingMapTimerTick, 1.0f, true);
 }
 
@@ -181,12 +187,12 @@ void ADMLGameMode::StartMatchTimerTick()
 	}
 }
 
-void ADMLGameMode::GameTimerTick()
+void ADMLGameMode::GameTimerTick() const
 {
 	DMLGameState->GameTime++;
 }
 
-void ADMLGameMode::LeavingMapTimerTick()
+void ADMLGameMode::LeavingMapTimerTick() const
 {
 	DMLGameState->GameTime--;
 	if (DMLGameState->GameTime <= 0)

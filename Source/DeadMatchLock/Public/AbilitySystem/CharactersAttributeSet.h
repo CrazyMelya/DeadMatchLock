@@ -132,6 +132,16 @@ public:
 	FGameplayAttributeData WeaponDamage;
 	ATTRIBUTE_ACCESSORS(WeaponDamage);
 
+	UFUNCTION()
+	virtual void OnRep_WeaponDamage(const FGameplayAttributeData& OldWeaponDamage);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MeleeDamage)
+	FGameplayAttributeData MeleeDamage;
+	ATTRIBUTE_ACCESSORS(MeleeDamage);
+
+	UFUNCTION()
+	virtual void OnRep_MeleeDamage(const FGameplayAttributeData& OldMeleeDamage);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_AirJumps)
 	FGameplayAttributeData AirJumps;
 	ATTRIBUTE_ACCESSORS(AirJumps);
@@ -159,9 +169,41 @@ public:
 	
 	UFUNCTION()
 	virtual void OnRep_MaxAirDashes(const FGameplayAttributeData& OldMaxAirDashes);
-	
+
+	UPROPERTY(EditAnywhere,	BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_Spread)
+	FGameplayAttributeData Spread;
+	ATTRIBUTE_ACCESSORS(Spread);
+
 	UFUNCTION()
-	virtual void OnRep_WeaponDamage(const FGameplayAttributeData& OldWeaponDamage);
+	virtual void OnRep_Spread(const FGameplayAttributeData& OldSpread);
+
+	UPROPERTY(EditAnywhere,	BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MinSpread)
+	FGameplayAttributeData MinSpread;
+	ATTRIBUTE_ACCESSORS(MinSpread);
+
+	UFUNCTION()
+	virtual void OnRep_MinSpread(const FGameplayAttributeData& OldMinSpread);
+
+	UPROPERTY(EditAnywhere,	BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxSpread)
+	FGameplayAttributeData MaxSpread;
+	ATTRIBUTE_ACCESSORS(MaxSpread);
+
+	UFUNCTION()
+	virtual void OnRep_MaxSpread(const FGameplayAttributeData& OldMaxSpread);
+
+	UPROPERTY(EditAnywhere,	BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_SpreadIncreaseRate)
+	FGameplayAttributeData SpreadIncreaseRate;
+	ATTRIBUTE_ACCESSORS(SpreadIncreaseRate);
+
+	UFUNCTION()
+	virtual void OnRep_SpreadIncreaseRate(const FGameplayAttributeData& OldSpreadIncreaseRate);
+
+	UPROPERTY(EditAnywhere,	BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_BulletsPerShot)
+	FGameplayAttributeData BulletsPerShot;
+	ATTRIBUTE_ACCESSORS(BulletsPerShot);
+
+	UFUNCTION()
+	virtual void OnRep_BulletsPerShot(const FGameplayAttributeData& OldBulletsPerShot);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float &NewValue) override;
 	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;

@@ -15,7 +15,14 @@ void UGA_Climb::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 	}
 }
 
-bool UGA_Climb::SearchWall()
+bool UGA_Climb::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags,
+	FGameplayTagContainer* OptionalRelevantTags) const
+{
+	return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags) && SearchWall();
+}
+
+bool UGA_Climb::SearchWall() const
 {
 	FHitResult Hit;
 	FVector Start = Character->GetActorLocation() + FVector(0, 0, MinClimbHeight);

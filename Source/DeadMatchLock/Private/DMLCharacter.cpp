@@ -87,6 +87,23 @@ void ADMLCharacter::BeginPlay()
 	// Call the base class 
 	Super::BeginPlay();
 
+	if (AbilitySystemComponent)
+	{
+		if (HasAuthority())
+		{
+			if (UCharactersAttributeSet* Attributes = NewObject<UCharactersAttributeSet>(this, UCharactersAttributeSet::StaticClass()))
+			{
+				AbilitySystemComponent->AddSpawnedAttribute(Attributes);
+				Attributes->OnOutOfHealth.AddUObject(this, &ThisClass::Die);
+			}
+			auto InitEffect = InitEffectClass->GetDefaultObject<UGameplayEffect>();
+			AbilitySystemComponent->ApplyGameplayEffectToSelf(InitEffect, 0, AbilitySystemComponent->MakeEffectContext());
+			AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ThisClass::OnEffectRemoved);
+			AbilitySystemComponent->OnAbilityEnded.AddUObject(this, &ThisClass::OnAbilityEnded);
+		}
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCharactersAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &ThisClass::OnMaxHealthChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCharactersAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
+	}
 	PlayerInfo = Cast<UPlayerInfo>(WC_PlayerInfo->GetWidget());
 	if (PlayerInfo)
 	{
@@ -116,28 +133,20 @@ void ADMLCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	if (AbilitySystemComponent)
-	{
-		if (HasAuthority())
-		{
-			if (UCharactersAttributeSet* Attributes = NewObject<UCharactersAttributeSet>(this, UCharactersAttributeSet::StaticClass()))
-			{
-				AbilitySystemComponent->AddSpawnedAttribute(Attributes);
-				Attributes->OnOutOfHealth.AddUObject(this, &ThisClass::Die);
-			}
-			auto InitEffect = InitEffectClass->GetDefaultObject<UGameplayEffect>();
-			AbilitySystemComponent->ApplyGameplayEffectToSelf(InitEffect, 0, AbilitySystemComponent->MakeEffectContext());
-			AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(this, &ThisClass::OnEffectRemoved);
-		}
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCharactersAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &ThisClass::OnMaxHealthChanged);
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UCharactersAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
-	}
 }
 
 void ADMLCharacter::OnEffectRemoved(const FActiveGameplayEffect& Effect) const
 {
 	if (Effect.Spec.Def->GetGrantedTags().HasTag(FGameplayTag::RequestGameplayTag(TAG_STUNNED)) &&
 		AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TAG_NEEDRELOAD)))
+	{
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TAG_RELOAD))), true);
+	}
+}
+
+void ADMLCharacter::OnAbilityEnded(const FAbilityEndedData& Ability) const
+{
+	if (AbilitySystemComponent->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(TAG_NEEDRELOAD)))
 	{
 		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(TAG_RELOAD))), true);
 	}
@@ -161,11 +170,15 @@ void ADMLCharacter::OnMaxHealthChanged(const FOnAttributeChangeData& Data) const
 	}
 }
 
-void ADMLCharacter::ResetJumpState()
+void ADMLCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
-	Super::ResetJumpState();
-
-	AbilitySystemComponent->BP_ApplyGameplayEffectToSelf(UGE_ResetJumpState::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+	
+	if ((PrevMovementMode == MOVE_Falling || PrevMovementMode == MOVE_Flying)
+		&& (GetCharacterMovement()->MovementMode == MOVE_Walking || (GetCharacterMovement()->MovementMode == MOVE_Custom && GetCharacterMovement()->CustomMovementMode == CMOVE_Slide)))
+	{
+		AbilitySystemComponent->BP_ApplyGameplayEffectToSelf(UGE_ResetJumpState::StaticClass(), 1, AbilitySystemComponent->MakeEffectContext());
+	}
 }
 
 bool ADMLCharacter::CanSlide()

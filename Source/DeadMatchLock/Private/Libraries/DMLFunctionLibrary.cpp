@@ -3,6 +3,12 @@
 
 #include "Libraries/DMLFunctionLibrary.h"
 
+#include "DMLGameInstance.h"
+#include "DMLGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "Lobby/LobbyGameMode.h"
+#include "MainMenu/DMLMainMenuGameMode.h"
+
 
 FVector UDMLFunctionLibrary::RotateTowards(FVector From, FVector To, float MaxAngleDegrees)
 {
@@ -34,4 +40,24 @@ FVector UDMLFunctionLibrary::RotateTowards(FVector From, FVector To, float MaxAn
 		RotationAxis = FVector::CrossProduct(ArbitraryAxis, Up).GetSafeNormal();
 		return From.RotateAngleAxis(RotationAngle, RotationAxis);
 	}
+}
+
+ALobbyGameMode* UDMLFunctionLibrary::GetLobbyGameMode(const UObject* WorldContextObject)
+{
+	return Cast<ALobbyGameMode>(UGameplayStatics::GetGameMode(WorldContextObject));
+}
+
+ADMLMainMenuGameMode* UDMLFunctionLibrary::GetMainMenuGameMode(const UObject* WorldContextObject)
+{
+	return Cast<ADMLMainMenuGameMode>(UGameplayStatics::GetGameMode(WorldContextObject));
+}
+
+ADMLGameMode* UDMLFunctionLibrary::GetDMLGameMode(const UObject* WorldContextObject)
+{
+	return Cast<ADMLGameMode>(UGameplayStatics::GetGameMode(WorldContextObject));
+}
+
+UDMLGameInstance* UDMLFunctionLibrary::GetDMLGameInstance(const UObject* WorldContextObject)
+{
+	return Cast<UDMLGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
 }

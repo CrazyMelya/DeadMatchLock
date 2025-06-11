@@ -182,7 +182,7 @@ void ALobbyGameMode::EndSelectionStage()
 	}
 	PickRandomCharacters();
 	LobbyGameState->SetLobbyStage(FinalCountdown);
-	LobbyGameState->RemainingTime = 10;
+	LobbyGameState->RemainingTime = FinalCountdownTime;
 	GetWorld()->GetTimerManager().SetTimer(Timer, this, &ALobbyGameMode::FinalCountdownTick, 1.0f, true);
 	
 }

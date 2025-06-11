@@ -119,6 +119,9 @@ protected:
 
 	UFUNCTION()
 	void OnEffectRemoved(const FActiveGameplayEffect& Effect) const;
+
+	UFUNCTION()
+	void OnAbilityEnded(const FAbilityEndedData& Ability) const;
 	
 	void OnHealthChanged(const FOnAttributeChangeData& Data) const;
 	void OnMaxHealthChanged(const FOnAttributeChangeData& Data) const;
@@ -126,7 +129,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "PlayerInfo")
 	UPlayerInfo* PlayerInfo;
 
-	virtual void ResetJumpState() override;
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode = 0) override;
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -152,4 +155,5 @@ private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void ResumeMontage();
 };
+
 
